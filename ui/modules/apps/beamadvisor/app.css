@@ -1,0 +1,360 @@
+/* --- Root Styles --- */
+
+/* Root container */
+.beam-advisor {
+  height: 100%;
+  width: 100%;
+}
+
+
+
+/* --- Utilities --- */
+
+/* White text */
+.beam-advisor .text-white {
+  color: white;
+}
+
+/* Centered text */
+.beam-advisor .text-center {
+  text-align: center;
+}
+
+/* Float right */
+.beam-advisor .float-right {
+  float: right;
+}
+
+/* Display inline */
+.beam-advisor .display-inline {
+  display: inline-block;
+}
+
+/* Give the element a background */
+.beam-advisor .bg-dark {
+  background-image: url('/ui/modules/apps/beamadvisor/images/texture2.png');
+}
+
+
+
+/* --- Frames & Outer Containers, Logo --- */
+
+/* Outer frame */
+.beam-advisor .frame-outer {
+  box-sizing: border-box;
+  border: 6px solid #ffffff3d;
+  border-radius: 18px;
+}
+
+/* .hidden can be added to make the border treansparent */
+.beam-advisor .frame-outer.hidden {
+  border-color: transparent !important;
+}
+
+/* .hide can be added to hide the entire UI, if the player gets out of a vehicle */
+.beam-advisor .frame-outer.hide {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Inner frame */
+.beam-advisor .frame-inner {
+  background-image: url('/ui/modules/apps/beamadvisor/images/texture.png');
+  width: 568px;
+  height: 400px;
+  padding: 10px;
+  margin: 0;
+  border-radius: 10px;
+}
+
+/* .active must be given to the inner frame if the outer frame has .hidden */
+/* This gives the inner frame a lighter background, and sets the correct height */
+.beam-advisor .frame-inner.active {
+  background-image: url('/ui/modules/apps/beamadvisor/images/texture2.png') !important;
+  border-radius: 5px !important;
+  height: 355px !important;
+}
+
+/* ... it also ups the transparency of the top, middle and bottom bars */
+.beam-advisor .frame-inner.active .top-bar,
+.beam-advisor .frame-inner.active .middle-bar,
+.beam-advisor .frame-inner.active .bottom-bar {
+  opacity: 0.75 !important;
+}
+
+/* Display container */
+/* Contains the advisor's content (the content that dynamically changes) */
+.beam-advisor .display {
+  width: 568px;
+  height: 350px;
+}
+
+/* Logo container */
+/* Contains the logo */
+.beam-advisor .logo {
+  width: 568px;
+  height: 30px;
+  margin: 0;
+}
+
+/* p used to center the logo */
+.beam-advisor .logo p {
+  text-align: center;
+}
+
+/* img tag inside the p is the logo itself */
+.beam-advisor .logo p img {
+  width: auto;
+  height: 20px;
+  margin-top: 5px;
+}
+
+/* .hidden can be added to hide it */
+.beam-advisor .logo.hidden,
+.beam-advisor .logo.hidden p,
+.beam-advisor .logo.hidden p img {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+
+
+/* --- Display (Inner) Containers --- */
+
+/* Top Bar */
+/* Holds the speed, gear/damage/fuel/temp, day and time */
+.beam-advisor .top-bar {
+  background: rgb(68,68,68);
+  background: linear-gradient(180deg, rgba(45,45,45,1) 0%, rgba(82,82,82,1) 50%, rgba(45,45,45,1) 100%);
+  width: 100%;
+  height: 30px;
+  opacity: 0.9;
+}
+
+/* Middle Bar */
+/* Holds the active tab label */
+.beam-advisor .middle-bar {
+  background: rgb(23,23,23);
+  background: linear-gradient(180deg, rgba(23,23,23,1) 0%, rgba(25,25,25,1) 50%, rgba(31,31,31,1) 100%);
+  width: 100%;
+  height: 30px;
+  opacity: 0.9;
+}
+
+/* Make all the p elements in the top & middle bars inline */
+.beam-advisor .top-bar p,
+.beam-advisor .middle-bar p {
+  display: inline-block;
+}
+
+/* Content Container */
+/* Contains the content of the active (selected) tab (ie. Navigation) */
+.beam-advisor .content-container {
+  width: 100%;
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px !important;
+  overflow-y: hidden;
+}
+
+/* Bottom Bar */
+/* Contains the buttons for switching between the active (selected) tab */
+.beam-advisor .bottom-bar {
+  background: rgb(68,68,68);
+  background: linear-gradient(180deg, rgba(45,45,45,1) 0%, rgba(82,82,82,1) 50%, rgba(45,45,45,1) 100%);
+  width: 100%;
+  height: 50px;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+
+
+/* --- Top Bar Labels --- */
+
+/* Speed display */
+.beam-advisor .top-bar #speed {
+  background: rgb(85,85,85);
+  background: linear-gradient(180deg, rgba(68,68,68,1) 0%, rgba(85,85,85,1) 50%, rgba(68,68,68,1) 100%) !important;
+  color: white;
+  font-weight: 800;
+  text-align: center;
+  max-width: 80px !important;
+  max-height: 30px !important;
+  padding: 4px 24px;
+  margin: 0;
+}
+
+/* Gear display */
+.beam-advisor .top-bar #gear {
+  color: #E4AA27;
+  font-weight: 800;
+  text-align: center;
+  max-height: 30px !important;
+  margin: 0;
+  margin-left: 12px;
+}
+
+/* Damage, fuel and temp displays */
+.beam-advisor .top-bar #damage,
+.beam-advisor .top-bar #fuel,
+.beam-advisor .top-bar #temp {
+  color: white;
+  font-weight: 800;
+  text-align: center;
+  max-height: 30px !important;
+  margin: 0;
+  margin-left: 12px;
+}
+
+/* Image properties for gear, damage, fuel and temp labels */
+.beam-advisor .top-bar #gear img,
+.beam-advisor .top-bar #damage img,
+.beam-advisor .top-bar #fuel img,
+.beam-advisor .top-bar #temp img {
+  width: auto;
+  height: 20px;
+  vertical-align: middle;
+  margin-top: -2px;
+  margin-bottom: 2px;
+}
+
+/* Day and time display */
+.beam-advisor .top-bar #dayTime {
+  background: rgb(85,85,85);
+  background: linear-gradient(180deg, rgba(68,68,68,1) 0%, rgba(85,85,85,1) 50%, rgba(68,68,68,1) 100%) !important;
+  color: white;
+  font-weight: 800;
+  text-align: center;
+  max-width: 160px !important;
+  max-height: 30px !important;
+  padding: 4px 24px;
+  margin: 0;
+  float: right;
+}
+
+/* Active (selected) tab name display */
+.beam-advisor .middle-bar #tabName {
+  color: #E4AA27;
+  font-weight: 800;
+  text-align: center;
+  max-width: 160px !important;
+  max-height: 30px !important;
+  padding: 4px 24px;
+  margin: 0;
+}
+
+
+
+/* --- Tabs --- */
+
+/* Hide all tabs... */
+.beam-advisor .content-container .tab {
+  display: none;
+  width: 100%;
+  width: 100%;
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px !important;
+  overflow-y: scroll;
+}
+
+/* ...apart from the active one */
+.beam-advisor .content-container .tab.active {
+  display: block !important;
+}
+
+
+
+/* --- Buttons --- */
+
+/* Navigation button (used in the bottom bar) */
+.beam-advisor .nav-button {
+  background: transparent;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border: none;
+  outline: none;
+  padding-top: 4px;
+  border-bottom: 4px solid transparent !important;
+  z-index: 100;
+}
+
+/* Navigation button image styling */
+.beam-advisor .nav-button img {
+  width: auto;
+  height: 32px;
+  vertical-align: middle;
+}
+
+/* Navigation button .active class */
+.beam-advisor .nav-button.active {
+  border-bottom: 4px solid #FF6600 !important;
+}
+
+/* Navigation button :hover and :active states */
+.beam-advisor .nav-button:hover,
+.beam-advisor .nav-button:active {
+  opacity: 0.7;
+}
+
+/* UI button (used in the configuration tab) */
+.beam-advisor .ui-button {
+  background: #3d3d3d;
+  color: white;
+  padding: 2px 6px; 
+  border: none;
+  outline: none;
+  border-radius: 5px;
+}
+
+/* Navigation UI .active class */
+.beam-advisor .ui-button.active {
+  background: #ee9153;
+}
+
+/* UI button :hover and :active states */
+.beam-advisor .ui-button:hover,
+.beam-advisor .ui-button:active {
+  opacity: 0.8;
+}
+
+
+
+/* --- Navigation --- */
+
+/* Navigation root and wrapper */
+.beam-advisor .navigation-root,
+.beam-advisor .navigation-wrap {
+  width: 100%;
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px !important;
+  overflow: hidden;
+}
+
+/* Apply the bounce animation */
+.beam-advisor .bounce {
+  animation: bounce 1s cubic-bezier(0.4,0.1,0.2,1) both;
+}
+
+/* Fade animation */
+@keyframes fade {
+  from {
+      opacity: 0;
+      visibility: hidden;
+  }
+
+  to {
+      opacity: 1;
+      visibility: visible;
+  }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+  60% { transform: translateY(-2px); }
+}

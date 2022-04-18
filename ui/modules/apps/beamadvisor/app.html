@@ -1,0 +1,248 @@
+<div class="beam-advisor">
+  <div class="frame-outer">
+    <div class="frame-inner">
+      <div class="display">
+        <div class="top-bar">
+          <p id="speed"></p>
+
+          <p id="gear"></p>
+          <p id="damage"></p>
+          <p id="fuel"></p>
+          <p id="temp"></p>
+
+          <p id="dayTime"></p>
+        </div>
+
+        <div class="middle-bar">
+          <p id="tabName"></p>
+        </div>
+
+        <div class="content-container">
+          <!-- Navigation tab -->
+          <div class="tab" id="tab-navigation">
+
+            <div id="navigation-root">
+              <div class="navigation-wrap" id="overflow-wrap">
+                <div id="mapContainer" style="overflow: visible;">
+                  <svg style="overflow: visible">
+                    <defs>
+                      <image id="vehicleMarker" width="40" height="40"  x="-20" y="-20" xlink:href="/ui/modules/apps/beamadvisor/images/navigation/vehicleMarker.svg" />
+                    </defs>
+      
+                    <foreignObject id="canvasWrapper" style="position: absolute; width: 100%; height: 100%; x: -100%; y: -100%;">
+                      <canvas id="roadCanvas" width="4096" height="4096"></canvas>
+                    </foreignObject>
+                    
+                    <foreignObject id="routeCanvasWrapper" style="position: absolute; width: 100%; height: 100%; z-index: 100; x: -100%; y: -100%;">
+                      <canvas id="routeCanvas" width="4096" height="4096"></canvas>
+                    </foreignObject>
+                  </svg>
+                </div>
+              </div>
+
+              <div id="zoomDisplay" style="display: none;">{{ zoomMag }}</div>
+
+              <foreignObject id="overflowVehiclesCanvasWrapper" style="display: none;">
+                <canvas id="overflowVehiclesCanvas" width="auto" height="auto"></canvas>
+              </foreignObject>
+      
+              <div ng-if="collectableTotal > 0" style="display: none;">
+                <md-icon style="margin-bottom: 3px;" md-svg-src="{{ '/ui/modules/apps/Navigation/snowman.svg' }}" />
+                {{ collectableCurrent + '/' + collectableTotal }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Trip tab -->
+          <div class="tab" id="tab-trip">
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Odometer (this trip)
+              <button class="ui-button" id="btn-odometerReset" style="float: right; margin-left: 4px;">Reset</button>
+              <span style="float: right;" id="odometer"></span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Instant Fuel Consumption
+              <span style="float: right;" id="instantFuelConsumption"></span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Average Fuel Consumption
+              <span style="float: right;" id="averageFuelConsumption"></span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Distance To Empty
+              <span style="float: right;" id="dte"></span>
+            </p>
+          </div>
+
+          <!-- Vehicle tab -->
+          <div class="tab" id="tab-vehicle">
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Oil Temperature
+              <span style="float: right;" id="oilTemp"></span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Fuel Levels (remaining/total)
+              <span style="float: right;" id="fuelLevel"></span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Transmission Type
+              <span style="float: right;" id="transmissionType"></span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              RPM (current/max)
+              <span style="float: right;" id="rpm"></span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Vehicle Weight
+              <span style="float: right;" id="vehicleWeight"></span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Beams Deformed/Broken
+              <span style="float: right;" id="beamsDeformedBroken"></span>
+            </p>
+          </div>
+
+          <!-- Messages tab-->
+          <div class="tab" id="tab-messages">
+            <div style="color: #e3e3e3; display: flex; justify-content: center; align-items: center; width: 100%; height: 240px;">
+              <p id="shortMessage" style="text-align: center; font-size: 18px;">
+                <span style="color: grey;">There are no short messages at the moment</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Configuration tab -->
+          <div class="tab" id="tab-configuration">
+            <h4 style="color: white; margin: 0; padding: 4px 20px;">Appearance</h4>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Frame
+              <span style="float: right;">
+                <button class="ui-button" id="btn-frameAppearance-full">Full</button>
+                <button class="ui-button" id="btn-frameAppearance-reduced">Reduced</button>
+              </span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Time display
+              <span style="float: right;">
+                <button class="ui-button" id="btn-timeDisplay-12h">12 hour</button>
+                <button class="ui-button" id="btn-timeDisplay-24h">24 hour</button>
+              </span>
+            </p>
+
+            <h4 class="bg-dark" style="color: white; margin: 0; padding: 4px 20px;">Units</h4>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Speed
+              <span style="float: right;">
+                <button class="ui-button" id="btn-speedUnit-kph">km/h (kilometres per hour)</button>
+                <button class="ui-button" id="btn-speedUnit-mph">mph (miles per hour)</button>
+              </span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Distance
+              <span style="color: grey; float: right;">
+                <button class="ui-button" id="btn-distanceUnit-km">km (kilometres)</button>
+                <button class="ui-button" id="btn-distanceUnit-mi">mi (miles)</button>
+              </span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Temperature
+              <span style="float: right;">
+                <button class="ui-button" id="btn-tempUnit-c">°C (celsius)</button>
+                <button class="ui-button" id="btn-tempUnit-f">°F (fahrenheit)</button>
+              </span>
+            </p>
+
+            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+              Fuel
+              <span style="float: right;">
+                <button class="ui-button" id="btn-fuelUnit-l">L (litres)</button>
+                <button class="ui-button" id="btn-fuelUnit-gal">gal (gallons)</button>
+              </span>
+            </p>
+
+            <p style="color: white; padding: 4px 20px; margin: 0;">
+              Weight
+              <span style="float: right;">
+                <button class="ui-button" id="btn-weightUnit-kg">kg (kilogrames)</button>
+                <button class="ui-button" id="btn-weightUnit-ton">ton (tonnes)</button>
+                <button class="ui-button" id="btn-weightUnit-lbs">lbs (pounds)</button>
+              </span>
+            </p>
+          </div>
+
+          <!-- Information tab -->
+          <div class="tab" id="tab-information">
+            <p style="text-align: center; margin-bottom: 4px;">
+              <img src="/ui/modules/apps/beamadvisor/images/logo2.png" style="width: auto; height: 32px;" />
+            </p>
+
+            <h5 style="color: white; text-align: center; margin-top: 0;">by ThatTonybo</h5>
+            <p style="color: white; text-align: center; font-size: 14px;">ETS2/ATS inspired information+navigation widget for BeamNG.drive</p>
+            <p style="color: #a3a3a3; text-align: center; font-size: 12px;">(c) 2022 ThatTonybo. Licensed under the MIT License. This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.</p>
+
+            <a href="#">github.com/ThatTonybo/BeamAdvisor</a>
+          </div>
+        </div>
+
+        <div class="bottom-bar" style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+          <!-- First two buttons are for spacing reasons (related to centering) -->
+          <div style="margin-right: auto; visibility: hidden;">
+            <button class="nav-button">&nbsp;</button>
+            <button class="nav-button">&nbsp;</button>
+          </div>
+
+          <!-- Then the centered buttons -->
+          <div style="display: flex;">
+            <button class="nav-button" id="btn-navigation">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/navigation.png" />
+            </button>
+
+            <button class="nav-button" id="btn-trip">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/trip.png" />
+            </button>
+    
+            <button class="nav-button" id="btn-vehicle">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/vehicle.png" />
+            </button>
+
+            <button class="nav-button" id="btn-messages">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/messages.png" />
+            </button>
+          </div>
+
+          <!-- And then the right aligned buttons -->
+          <div style="margin-left: auto;">
+            <button class="nav-button" id="btn-configuration">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/configuration.png" />
+            </button>
+
+            <button class="nav-button" id="btn-information">
+              <img src="/ui/modules/apps/beamadvisor/images/icons/information.png" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="logo">
+        <p>
+          <img src="/ui/modules/apps/beamadvisor/images/logo.png" />
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="/ui/modules/apps/beamadvisor/app.css" />
+</div>
