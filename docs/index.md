@@ -23,6 +23,7 @@
 <img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/7.png" width="auto" height="240">
 
 ## Video
+[youtu.be/rqWGcUtyfso](https://youtu.be/rqWGcUtyfso)
 
 ## Download
 You can find Beam Advisor on the [BeamNG.drive repository]()
