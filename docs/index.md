@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="center" src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/ui/modules/apps/beamadvisor/images/logo3.png" width="auto" height="80">
+    <img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/ui/modules/apps/beamadvisor/images/logo3.png" width="auto" height="80">
     <br>
     <br>
     ETS2/ATS inspired information+navigation widget for BeamNG.drive
@@ -14,7 +14,13 @@
 - Full, reduced (semi-transparent) & hidden appearance modes
 
 ## Screenshots
-
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/1.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/2.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/3.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/4.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/5.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/6.png" width="auto" height="240">
+<img src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/screenshots/7.png" width="auto" height="240">
 
 ## Video
 
