@@ -1,5 +1,6 @@
 <p align="center">
-    <img align="center" src="https://i.imgur.com/FP0jNY9.png" width="auto" height="80">
+    <img align="center" src="https://raw.githubusercontent.com/ThatTonybo/BeamAdvisor/main/ui/modules/apps/beamadvisor/images/logo3.png" width="auto" height="80">
+    <br>
     <br>
     ETS2/ATS inspired information+navigation widget for BeamNG.drive
 </p>
@@ -15,7 +16,12 @@
 ## Download
 You can find Beam Advisor on the [BeamNG.drive repository]()
 
-## Feature/bug tracking
-If you have found a bug or want to suggest a feature or change, use the [GitHub issues](https://github.com/ThatTonybo/BeamAdvisor/issues)
+## Feature requests & bugs
+If you have found a bug or want to suggest a feature or change, use the [GitHub issues](https://github.com/ThatTonybo/BeamAdvisor/issues) page
 
-Or, see the [Trello board]() for up to date tracking of current progress
+## Credits
+- Toastery for the majority of the navigation code, and for help with navigation-related issues throughout
+- Hippity for converting the vehicle marker to a SVG
+
+## License
+(c) 2022 ThatTonybo. Licensed under the MIT License. This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.

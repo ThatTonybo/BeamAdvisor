@@ -653,15 +653,7 @@ angular.module('beamng.apps')
 
       var init = false;
       var prevMarkers = [];
-
-      // Helps to clear the end of a route when it's been finished
-      setInterval(() => {
-        if (routeCanvas == null) return;
-
-        var ctx = routeCanvas.getContext("2d");
-
-        ctx.clear();
-      }, 1.5 * 1000);
+      let lastNavigationTimeout
 
       scope.$on('NavigationMapUpdate', (event, data) => {
         if (!mapReady || !data) return;
@@ -691,14 +683,12 @@ angular.module('beamng.apps')
         var ctx = routeCanvas.getContext("2d");
 
         if (!data || !data.markers) {
-          ctx.clearRect(0, 0, routeCanvas.width, routeCanvas.height);
-          ctx.stroke();
+          ctx.clear();
           return;
         }
 
         if (!data.markers.length) {
-          ctx.clearRect(0, 0, routeCanvas.width, routeCanvas.height);
-          ctx.stroke();
+          ctx.clear();
           return;
         }
 
