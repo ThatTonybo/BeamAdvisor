@@ -222,6 +222,10 @@ angular.module('beamng.apps')
           shortMessageTimeout = undefined;
         }
 
+        if (activeShortMessage) {
+          shortMessageLastTab = newTabName;
+        }
+
         const currentTab = document.getElementById(`tab-${activeTab}`);
         const currentTabButton = document.getElementById(`btn-${activeTab}`);
 
@@ -287,13 +291,13 @@ angular.module('beamng.apps')
       const showShortMessage = (msg, dismiss = true, timeout = (3 * 1000)) => {
         if (activeTab !== 'messages') shortMessageLastTab = activeTab;
 
+        changeActiveTab('messages');
+
         activeShortMessage = msg;
         elements.labels.messagesTab.shortMessage.innerHTML = msg;
 
         const sound = new Audio('/ui/modules/apps/beamadvisor/sounds/ping.mp3');
         sound.play();
-        
-        changeActiveTab('messages');
 
         shortMessageShown = true;
 
@@ -306,7 +310,9 @@ angular.module('beamng.apps')
         if (!shortMessageShown) return;
 
         changeActiveTab(shortMessageLastTab || 'navigation');
+        elements.labels.messagesTab.shortMessage.innerHTML = '<span style="color: grey;">There are no short messages at the moment</span>';
 
+        activeShortMessage = undefined;
         shortMessageTimeout = undefined;
       }
 
@@ -653,7 +659,6 @@ angular.module('beamng.apps')
 
       var init = false;
       var prevMarkers = [];
-      let lastNavigationTimeout
 
       scope.$on('NavigationMapUpdate', (event, data) => {
         if (!mapReady || !data) return;
@@ -668,14 +673,6 @@ angular.module('beamng.apps')
           init = true;
         }
       });
-
-      /*scope.$on('CollectablesInit', (event, data) => {
-        if (data) setupCollectables(data);
-      });*/
-
-      /*scope.$on('NavigationStaticMarkers', (event, data) => {
-        if (data) setupStaticMarkers(data)
-      });;*/
 
       scope.$on('NavigationGroundMarkersUpdate', (event, data) => {       
         if (routeCanvas == null) return;

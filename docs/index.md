@@ -13,6 +13,11 @@
 - Fully configurable: kmh/mph (speed), km/mi (distance), C/F (temperature), L/gal (fuel), kg/ton/lgs (weight), 12 hour/24 hour (time)
 - Full, reduced (semi-transparent) & hidden appearance modes
 
+## Screenshots
+
+
+## Video
+
 ## Download
 You can find Beam Advisor on the [BeamNG.drive repository]()
 
@@ -24,4 +29,6 @@ If you have found a bug or want to suggest a feature or change, use the [GitHub 
 - Hippity for converting the vehicle marker to a SVG
 
 ## License
-(c) 2022 ThatTonybo. Licensed under the MIT License. This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.
+(c) 2022 ThatTonybo. Licensed under the MIT License.
+
+This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.
