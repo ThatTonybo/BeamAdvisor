@@ -42,6 +42,8 @@
 /* Outer frame */
 .beam-advisor .frame-outer {
   box-sizing: border-box;
+  width: 100%;
+  height: 100%;
   border: 6px solid #ffffff3d;
   border-radius: 18px;
 }
@@ -60,8 +62,8 @@
 /* Inner frame */
 .beam-advisor .frame-inner {
   background-image: url('/ui/modules/apps/beamadvisor/images/texture.png');
-  width: 568px;
-  height: 400px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
   padding: 10px;
   margin: 0;
   border-radius: 10px;
@@ -72,7 +74,7 @@
 .beam-advisor .frame-inner.active {
   background-image: url('/ui/modules/apps/beamadvisor/images/texture2.png') !important;
   border-radius: 5px !important;
-  height: 355px !important;
+  height: calc(100% - 80px) !important;
 }
 
 /* ... it also ups the transparency of the top, middle and bottom bars */
@@ -82,17 +84,29 @@
   opacity: 0.75 !important;
 }
 
+/* ...the display container */
+.beam-advisor .frame-inner.active .display {
+  height: calc(100% - 12px) !important;
+}
+
+/* ...and the content container */
+.beam-advisor .frame-inner.active .content-container {
+  min-height: calc(100% - 100px) !important;
+  height: calc(100% - 100px) !important;
+  max-height: calc(100% - 100px) !important;
+}
+
 /* Display container */
 /* Contains the advisor's content (the content that dynamically changes) */
 .beam-advisor .display {
-  width: 568px;
-  height: 350px;
+  width: 100%;
+  height: calc(100% - 54px);
 }
 
 /* Logo container */
 /* Contains the logo */
 .beam-advisor .logo {
-  width: 568px;
+  width: 100%;
   height: 30px;
   margin: 0;
 }
@@ -151,11 +165,21 @@
 /* Contains the content of the active (selected) tab (ie. Navigation) */
 .beam-advisor .content-container {
   width: 100%;
-  min-height: 240px;
-  height: 240px;
-  max-height: 240px !important;
+  min-height: calc(100% - 100px);
+  height: calc(100% - 100px);
+  max-height: calc(100% - 100px);
   overflow-y: hidden;
 }
+
+/* .pattern can be added to enable the background pattern (WIP) */
+/* Pattern made with https://www.magicpattern.design/tools/css-backgrounds */
+/*.beam-advisor .content-container.pattern #tab-navigation {
+  opacity: 0.9;
+  background-image: linear-gradient(135deg, #2424249d 25%, transparent 25%), linear-gradient(225deg, #2424249d 25%, transparent 25%), linear-gradient(45deg, #2424249d 25%, transparent 25%), linear-gradient(315deg, #2424249d 25%, #2424249d 25%);
+  background-position:  9px 0, 9px 0, 0 0, 0 0;
+  background-size: 9px 9px;
+  background-repeat: repeat;
+}*/
 
 /* Bottom Bar */
 /* Contains the buttons for switching between the active (selected) tab */
@@ -170,12 +194,12 @@
 
 
 
-/* --- Top Bar Labels --- */
+/* --- Top Bar/Middle Bar Labels --- */
 
 /* Speed display */
 .beam-advisor .top-bar #speed {
-  background: rgb(85,85,85);
-  background: linear-gradient(180deg, rgba(68,68,68,1) 0%, rgba(85,85,85,1) 50%, rgba(68,68,68,1) 100%) !important;
+  background: rgb(70, 70, 70);
+  background: linear-gradient(180deg, rgb(46, 46, 46) 0%, rgb(85, 85, 85) 50%, rgb(46, 46, 46) 100%);
   color: white;
   font-weight: 800;
   text-align: center;
@@ -192,7 +216,7 @@
   text-align: center;
   max-height: 30px !important;
   margin: 0;
-  margin-left: 12px;
+  margin-left: 8px;
 }
 
 /* Damage, fuel and temp displays */
@@ -221,8 +245,8 @@
 
 /* Day and time display */
 .beam-advisor .top-bar #dayTime {
-  background: rgb(85,85,85);
-  background: linear-gradient(180deg, rgba(68,68,68,1) 0%, rgba(85,85,85,1) 50%, rgba(68,68,68,1) 100%) !important;
+  background: rgb(70, 70, 70);
+  background: linear-gradient(180deg, rgb(46, 46, 46) 0%, rgb(85, 85, 85) 50%, rgb(46, 46, 46) 100%);
   color: white;
   font-weight: 800;
   text-align: center;
@@ -252,16 +276,30 @@
 .beam-advisor .content-container .tab {
   display: none;
   width: 100%;
-  width: 100%;
-  min-height: 240px;
-  height: 240px;
-  max-height: 240px !important;
+  height: 100%;
   overflow-y: scroll;
 }
 
 /* ...apart from the active one */
 .beam-advisor .content-container .tab.active {
   display: block !important;
+}
+
+/* Provides styling for content rows */
+.beam-advisor .row {
+  color: white;
+  padding: 4px 20px;
+  margin: 0;
+}
+
+/* Provides styling for the short message box */
+.beam-advisor .shortMessageBox {
+  color: #e3e3e3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 
@@ -325,12 +363,10 @@
 /* --- Navigation --- */
 
 /* Navigation root and wrapper */
-.beam-advisor .navigation-root,
+.beam-advisor #navigation-root,
 .beam-advisor .navigation-wrap {
   width: 100%;
-  min-height: 240px;
-  height: 240px;
-  max-height: 240px !important;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -357,4 +393,38 @@
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
   40% { transform: translateY(-4px); }
   60% { transform: translateY(-2px); }
+}
+
+
+
+/* --- Low Space Mode --- */
+
+/* Reduce horizontal padding of speed, day/time displays and active tab label */
+.beam-advisor.low-space-mode #speed,
+.beam-advisor.low-space-mode #dayTime,
+.beam-advisor.low-space-mode #tabName {
+  padding: 4px 8px;
+}
+
+/* Reduce left margin (spacing) of gear, damage, fuel and temp displays */
+.beam-advisor.low-space-mode #gear,
+.beam-advisor.low-space-mode #damage,
+.beam-advisor.low-space-mode #fuel,
+.beam-advisor.low-space-mode #temp {
+  margin-left: 8px;
+}
+
+/* Reduce horizontal padding of content rows */
+.beam-advisor.low-space-mode .row {
+  padding: 4px 8px;
+}
+
+/* Reduce button & icon size in bottom bar */
+.beam-advisor.low-space-mode .nav-button {
+  width: 40px;
+}
+
+.beam-advisor.low-space-mode .nav-button img {
+  width: auto;
+  height: 24px !important;
 }

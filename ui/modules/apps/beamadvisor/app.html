@@ -55,23 +55,23 @@
 
           <!-- Trip tab -->
           <div class="tab" id="tab-trip">
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Odometer (this trip)
               <button class="ui-button" id="btn-odometerReset" style="float: right; margin-left: 4px;">Reset</button>
               <span style="float: right;" id="odometer"></span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Instant Fuel Consumption
               <span style="float: right;" id="instantFuelConsumption"></span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Average Fuel Consumption
               <span style="float: right;" id="averageFuelConsumption"></span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Distance To Empty
               <span style="float: right;" id="dte"></span>
             </p>
@@ -79,32 +79,32 @@
 
           <!-- Vehicle tab -->
           <div class="tab" id="tab-vehicle">
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Oil Temperature
               <span style="float: right;" id="oilTemp"></span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
-              Fuel Levels (remaining/total)
+            <p class="row bg-dark">
+              Fuel Levels (% left, remaining/total)
               <span style="float: right;" id="fuelLevel"></span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Transmission Type
               <span style="float: right;" id="transmissionType"></span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               RPM (current/max)
               <span style="float: right;" id="rpm"></span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Vehicle Weight
               <span style="float: right;" id="vehicleWeight"></span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Beams Deformed/Broken
               <span style="float: right;" id="beamsDeformedBroken"></span>
             </p>
@@ -112,7 +112,7 @@
 
           <!-- Messages tab-->
           <div class="tab" id="tab-messages">
-            <div style="color: #e3e3e3; display: flex; justify-content: center; align-items: center; width: 100%; height: 240px;">
+            <div class="shortMessageBox">
               <p id="shortMessage" style="text-align: center; font-size: 18px;">
                 <span style="color: grey;">There are no short messages at the moment</span>
               </p>
@@ -121,9 +121,9 @@
 
           <!-- Configuration tab -->
           <div class="tab" id="tab-configuration">
-            <h4 style="color: white; margin: 0; padding: 4px 20px;">Appearance</h4>
+            <h4 class="row">Appearance</h4>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Frame
               <span style="float: right;">
                 <button class="ui-button" id="btn-frameAppearance-full">Full</button>
@@ -131,7 +131,7 @@
               </span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Time display
               <span style="float: right;">
                 <button class="ui-button" id="btn-timeDisplay-12h">12 hour</button>
@@ -139,9 +139,17 @@
               </span>
             </p>
 
-            <h4 class="bg-dark" style="color: white; margin: 0; padding: 4px 20px;">Units</h4>
+            <p class="row bg-dark">
+              Low Space Mode
+              <span style="float: right;">
+                <input type="checkbox" id="chk-lowSpaceMode" name="lowSpaceMode" value="LowSpaceMode" />
+                <label for="lowSpaceMode" id="lowSpaceMode-value">Disabled</label>
+              </span>
+            </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <h4 class="row">Units</h4>
+
+            <p class="row bg-dark">
               Speed
               <span style="float: right;">
                 <button class="ui-button" id="btn-speedUnit-kph">km/h (kilometres per hour)</button>
@@ -149,7 +157,7 @@
               </span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Distance
               <span style="color: grey; float: right;">
                 <button class="ui-button" id="btn-distanceUnit-km">km (kilometres)</button>
@@ -157,7 +165,7 @@
               </span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Temperature
               <span style="float: right;">
                 <button class="ui-button" id="btn-tempUnit-c">°C (celsius)</button>
@@ -165,7 +173,7 @@
               </span>
             </p>
 
-            <p class="bg-dark" style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row">
               Fuel
               <span style="float: right;">
                 <button class="ui-button" id="btn-fuelUnit-l">L (litres)</button>
@@ -173,12 +181,64 @@
               </span>
             </p>
 
-            <p style="color: white; padding: 4px 20px; margin: 0;">
+            <p class="row bg-dark">
               Weight
               <span style="float: right;">
                 <button class="ui-button" id="btn-weightUnit-kg">kg (kilogrames)</button>
                 <button class="ui-button" id="btn-weightUnit-ton">ton (tonnes)</button>
                 <button class="ui-button" id="btn-weightUnit-lbs">lbs (pounds)</button>
+              </span>
+            </p>
+
+            <h4 class="row">Messages</h4>
+
+            <p class="row bg-dark">
+              Play Alert Sound
+              <span style="float: right;">
+                <input type="checkbox" id="chk-playAlertSound" name="playAlertSound" value="PlayAlertSound" />
+                <label for="playAlertSound" id="playAlertSound-value">Disabled</label>
+              </span>
+            </p>
+
+            <hr />
+
+            <p class="row bg-dark">
+              Park Brake On Alert
+              <span style="float: right;">
+                <input type="checkbox" id="chk-alert-parkBrakeOn" name="alert-parkBrakeOn" value="AlertParkBrakeOn" />
+                <label for="alert-parkBrakeOn" id="alert-parkBrakeOn-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row">
+              Damage Alert
+              <span style="float: right;">
+                <input type="checkbox" id="chk-alert-damage" name="alert-damage" value="AlertDamage" />
+                <label for="alert-damage" id="alert-damage-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row bg-dark">
+              Fuel 10% Alert
+              <span style="float: right;">
+                <input type="checkbox" id="chk-alert-fuel10Percent" name="alert-fuel10Percent" value="AlertFuel10Percent" />
+                <label for="alert-fuel10Percent" id="alert-fuel10Percent-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row">
+              Fuel 5% Alert
+              <span style="float: right;">
+                <input type="checkbox" id="chk-alert-fuel5Percent" name="alert-fuel5Percent" value="AlertFuel5Percent" />
+                <label for="alert-fuel5Percent" id="alert-fuel5Percent-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row bg-dark">
+              Out of Fuel Alert
+              <span style="float: right;">
+                <input type="checkbox" id="chk-alert-outOfFuel" name="alert-outOfFuel" value="AlertOutOfFuel" />
+                <label for="alert-outOfFuel" id="alert-outOfFuel-value">Disabled</label>
               </span>
             </p>
           </div>
@@ -193,7 +253,7 @@
             <p style="color: white; text-align: center; font-size: 14px;">ETS2/ATS inspired information+navigation widget for BeamNG.drive</p>
             <p style="color: #a3a3a3; text-align: center; font-size: 12px;">(c) 2022 ThatTonybo. Licensed under the MIT License. This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.</p>
 
-            <a href="https://thattonybo.github.io/BeamAdvisor">thattonybo.github.io/BeamAdvisor</a>
+            <a href="https://thattonybo.github.io/BeamAdvisor" style="text-align: center; background-color: transparent;">thattonybo.github.io/BeamAdvisor</a>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-// Data
+// Data:
 // Date#getDay -> day to display
 const days = {
   0: 'Sun',
@@ -17,7 +17,7 @@ const sounds = {
   }
 }
 
-// Functions (that don't require context/can have context passed in)
+// Functions (that don't require context/can have context passed in):
 // Create a percentage from a current and max value
 const percentage = (partial, total) => (100 * partial) / total;
 
@@ -31,7 +31,18 @@ const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Convert a string (ie. "the boys") to title case ("The Boys")
-const toTitleCase = (str) => str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+const toTitleCase = (str) => str ? typeof str === 'string' ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : '' : '';
+
+// Ensure the passed value is a boolean
+const ensureBool = (val) => {
+  if (val == true) return true;
+  if (val == false) return false;
+
+  if (val == 'true') return true;
+  if (val == 'false') return false;
+
+  return false;
+}
 
 // Helper functions to update an element's text or color, preventing errors if it doesn't exist
 const updateElementText = (element, val) => {
@@ -86,6 +97,16 @@ angular.module('beamng.apps')
       // ...and add them to the stream manager
       StreamsManager.add(streamsList);
 
+      // Set default settings for booleans
+      if (!localStorage.getItem('beamAdvisor-lowSpaceMode')) localStorage.setItem('beamAdvisor-lowSpaceMode', false);
+      if (!localStorage.getItem('beamAdvisor-playAlertSound')) localStorage.setItem('beamAdvisor-playAlertSound', true);
+
+      if (!localStorage.getItem('beamAdvisor-alert-parkBrakeOn')) localStorage.setItem('beamAdvisor-alert-parkBrakeOn', true);
+      if (!localStorage.getItem('beamAdvisor-alert-damage')) localStorage.setItem('beamAdvisor-alert-damage', true);
+      if (!localStorage.getItem('beamAdvisor-alert-fuel10Percent')) localStorage.setItem('beamAdvisor-alert-fuel10Percent', true);
+      if (!localStorage.getItem('beamAdvisor-alert-fuel5Percent')) localStorage.setItem('beamAdvisor-alert-fuel5Percent', true);
+      if (!localStorage.getItem('beamAdvisor-alert-outOfFuel')) localStorage.setItem('beamAdvisor-alert-outOfFuel', true);
+
       // Define settings
       let settings = {
         speedUnit: localStorage.getItem('beamAdvisor-speedUnit') || 'mph',
@@ -94,7 +115,16 @@ angular.module('beamng.apps')
         fuelUnit: localStorage.getItem('beamAdvisor-fuelUnit') || 'l',
         weightUnit: localStorage.getItem('beamAdvisor-weightUnit') || 'kg',
         timeDisplay: localStorage.getItem('beamAdvisor-timeDisplay') || '24h',
-        frameAppearance: localStorage.getItem('beamAdvisor-frameAppearance') || 'full'
+        frameAppearance: localStorage.getItem('beamAdvisor-frameAppearance') || 'full',
+        lowSpaceMode: ensureBool(localStorage.getItem('beamAdvisor-lowSpaceMode')),
+        playAlertSound: ensureBool(localStorage.getItem('beamAdvisor-playAlertSound')),
+        alerts: {
+          alertParkBrakeOn: ensureBool(localStorage.getItem('beamAdvisor-alert-parkBrakeOn')),
+          alertDamage: ensureBool(localStorage.getItem('beamAdvisor-alert-damage')),
+          alertFuel10Percent: ensureBool(localStorage.getItem('beamAdvisor-alert-fuel10Percent')),
+          alertFuel5Percent: ensureBool(localStorage.getItem('beamAdvisor-alert-fuel5Percent')),
+          alertOutOfFuel: ensureBool(localStorage.getItem('beamAdvisor-alert-outOfFuel'))
+        }
       }
 
       // Define session variables
@@ -106,7 +136,6 @@ angular.module('beamng.apps')
       let averageFuelConsumptionLitres;
       let averageFuelConsumptionGallons;
       let lastFuelLevel; // Last fuel level is in litres
-      let lastDistanceTravelled; // Last distance travelled is in km
       let instantAverageFuelLevels = [];
       let averageFuelLevels = [];
       let activeShortMessage = null;
@@ -171,6 +200,17 @@ angular.module('beamng.apps')
             rpm: document.getElementById('rpm'),
             vehicleWeight: document.getElementById('vehicleWeight'),
             beamsDeformedBroken: document.getElementById('beamsDeformedBroken')
+          },
+
+          configurationTab: {
+            lowSpaceMode: document.getElementById('lowSpaceMode-value'),
+            playAlertSound: document.getElementById('playAlertSound-value'),
+
+            alertParkBrakeOn: document.getElementById('alert-parkBrakeOn-value'),
+            alertDamage: document.getElementById('alert-damage-value'),
+            alertFuel10Percent: document.getElementById('alert-fuel10Percent-value'),
+            alertFuel5Percent: document.getElementById('alert-fuel5Percent-value'),
+            alertOutOfFuel: document.getElementById('alert-outOfFuel-value')
           }
         },
 
@@ -211,6 +251,19 @@ angular.module('beamng.apps')
             frameAppearanceFull: document.getElementById('btn-frameAppearance-full'),
             frameAppearanceReduced: document.getElementById('btn-frameAppearance-reduced')
           }
+        },
+
+        checkboxes: {
+          configurationTab: {
+            lowSpaceMode: document.getElementById('chk-lowSpaceMode'),
+            playAlertSound: document.getElementById('chk-playAlertSound'),
+
+            alertParkBrakeOn: document.getElementById('chk-alert-parkBrakeOn'),
+            alertDamage: document.getElementById('chk-alert-damage'),
+            alertFuel10Percent: document.getElementById('chk-alert-fuel10Percent'),
+            alertFuel5Percent: document.getElementById('chk-alert-fuel5Percent'),
+            alertOutOfFuel: document.getElementById('chk-alert-outOfFuel')
+          }
         }
       }
 
@@ -220,10 +273,6 @@ angular.module('beamng.apps')
         if (shortMessageTimeout !== undefined) {
           clearTimeout(shortMessageTimeout);
           shortMessageTimeout = undefined;
-        }
-
-        if (activeShortMessage) {
-          shortMessageLastTab = newTabName;
         }
 
         const currentTab = document.getElementById(`tab-${activeTab}`);
@@ -291,13 +340,15 @@ angular.module('beamng.apps')
       const showShortMessage = (msg, dismiss = true, timeout = (3 * 1000)) => {
         if (activeTab !== 'messages') shortMessageLastTab = activeTab;
 
-        changeActiveTab('messages');
-
         activeShortMessage = msg;
         elements.labels.messagesTab.shortMessage.innerHTML = msg;
 
-        const sound = new Audio('/ui/modules/apps/beamadvisor/sounds/ping.mp3');
-        sound.play();
+        if (settings.playAlertSound) {
+          const sound = new Audio('/ui/modules/apps/beamadvisor/sounds/ping.mp3');
+          sound.play();
+        }
+
+        changeActiveTab('messages');
 
         shortMessageShown = true;
 
@@ -314,6 +365,21 @@ angular.module('beamng.apps')
 
         activeShortMessage = undefined;
         shortMessageTimeout = undefined;
+      }
+
+      // Helper function to change a message's setting (enabled/disabled)
+      const changeMessageSetting = (elm, labelElm, id, id2) => {
+        if (elm.checked === true) {
+          settings.alerts[`alert${id2}`] = true;
+          localStorage.setItem(`beamAdvisor-alert-${id}`, true);
+          labelElm.innerHTML = 'Enabled';
+        }
+
+        if (elm.checked === false) {
+          settings.alerts[`alert${id2}`] = false;
+          localStorage.setItem(`beamAdvisor-alert-${id}`, false);
+          labelElm.innerHTML = 'Disabled';
+        }
       }
 
       // Set up button functionality:
@@ -351,6 +417,43 @@ angular.module('beamng.apps')
       // Ui-related/other
       elements.buttons.tripTab.odometerReset.addEventListener('click', () => odometer = 0);
 
+      // Set up checkbox functionality:
+      elements.checkboxes.configurationTab.lowSpaceMode.addEventListener('click' , () => {
+        if (elements.checkboxes.configurationTab.lowSpaceMode.checked === true) {
+          settings.lowSpaceMode = true;
+          localStorage.setItem('beamAdvisor-lowSpaceMode', true);
+          elements.labels.configurationTab.lowSpaceMode.innerHTML = 'Enabled';
+          elements.root.classList.add('low-space-mode');
+        }
+
+        if (elements.checkboxes.configurationTab.lowSpaceMode.checked === false) {
+          settings.lowSpaceMode = false;
+          localStorage.setItem('beamAdvisor-lowSpaceMode', false);
+          elements.labels.configurationTab.lowSpaceMode.innerHTML = 'Disabled';
+          elements.root.classList.remove('low-space-mode');
+        }
+      });
+
+      elements.checkboxes.configurationTab.playAlertSound.addEventListener('click' , () => {
+        if (elements.checkboxes.configurationTab.playAlertSound.checked === true) {
+          settings.playAlertSound = true;
+          localStorage.setItem('beamAdvisor-playAlertSound', true);
+          elements.labels.configurationTab.playAlertSound.innerHTML = 'Enabled';
+        }
+
+        if (elements.checkboxes.configurationTab.playAlertSound.checked === false) {
+          settings.playAlertSound = false;
+          localStorage.setItem('beamAdvisor-playAlertSound', false);
+          elements.labels.configurationTab.playAlertSound.innerHTML = 'Disabled';
+        }
+      });
+
+      elements.checkboxes.configurationTab.alertParkBrakeOn.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertParkBrakeOn, elements.labels.configurationTab.alertParkBrakeOn, 'parkBrakeOn', 'ParkBrakeOn'));
+      elements.checkboxes.configurationTab.alertDamage.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertDamage,  elements.labels.configurationTab.alertDamage, 'damage', 'Damage'));
+      elements.checkboxes.configurationTab.alertFuel10Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel10Percent,  elements.labels.configurationTab.alertFuel10Percent, 'fuel10Percent', 'Fuel10Percent'));
+      elements.checkboxes.configurationTab.alertFuel5Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel5Percent,  elements.labels.configurationTab.alertFuel5Percent, 'fuel5Percent', 'Fuel5Percent'));
+      elements.checkboxes.configurationTab.alertOutOfFuel.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertOutOfFuel,  elements.labels.configurationTab.alertOutOfFuel, 'outOfFuel', 'OutOfFuel'));
+
       // On load:
       // - set the frame appearance
       changeFrameAppearance(settings.frameAppearance);
@@ -361,6 +464,15 @@ angular.module('beamng.apps')
       Object.entries(settings).forEach(([key, val]) => {
         updateActiveButton(`${key}${toTitleCase(val)}`);
       });
+      // - set the checkbox labels and values:
+      if (settings.lowSpaceMode === true) elements.checkboxes.configurationTab.lowSpaceMode.click();
+      if (settings.playAlertSound === true) elements.checkboxes.configurationTab.playAlertSound.click();
+
+      if (settings.alerts.alertParkBrakeOn === true) elements.checkboxes.configurationTab.alertParkBrakeOn.click();
+      if (settings.alerts.alertDamage === true) elements.checkboxes.configurationTab.alertDamage.click();
+      if (settings.alerts.alertFuel10Percent === true) elements.checkboxes.configurationTab.alertFuel10Percent.click();
+      if (settings.alerts.alertFuel5Percent === true) elements.checkboxes.configurationTab.alertFuel5Percent.click();
+      if (settings.alerts.alertOutOfFuel === true) elements.checkboxes.configurationTab.alertOutOfFuel.click();
 
       // Clean up handler
       scope.$on('$destroy', () => {
@@ -377,6 +489,8 @@ angular.module('beamng.apps')
 
         localStorage.setItem('beamAdvisor-lastActiveTab', activeTab);
         localStorage.setItem('beamAdvisor-lastOdometer', odometer);
+        localStorage.setItem('beamAdvisor-lowSpaceMode', ensureBool(settings.lowSpaceMode));
+        localStorage.setItem('beamAdvisor-playAlertSound', ensureBool(settings.playAlertSound));
       });
 
       // Update data handler
@@ -474,11 +588,13 @@ angular.module('beamng.apps')
         
         updateElementText(elements.labels.topBar.damage, `<img src="/ui/modules/apps/beamadvisor/images/icons/damage.png" /> ${damage}%`);
         if (damage > 40) updateElementColor(elements.labels.topBar.damage, '#d13046');
+        if (damage < 40) updateElementColor(elements.labels.topBar.damage, '#ffffff');
 
         // Fuel
         const fuel = Math.round(streams.electrics.fuel * 100);
         updateElementText(elements.labels.topBar.fuel, `<img src="/ui/modules/apps/beamadvisor/images/icons/fuel.png" /> ${fuel}%`);
         if (streams.electrics.lowfuel === 1 || fuel <= 10) updateElementColor(elements.labels.topBar.fuel, '#d13046');
+        if (streams.electrics.lowfuel === 0 || fuel > 10) updateElementColor(elements.labels.topBar.fuel, '#ffffff');
 
         // Temperature
         const tempF = streams.electrics.watertemp.toFixed(1);
@@ -542,7 +658,7 @@ angular.module('beamng.apps')
           updateElementText(elements.labels.vehicleTab.oilTemp, settings.tempUnit === 'f' ? `${oilTempF}°F` : `${oilTempC}°C`);
 
           // Fuel Level
-          updateElementText(elements.labels.vehicleTab.fuelLevel, settings.fuelUnit === 'gal' ? `${remainingFuelGallons.toFixed(1)}/${totalFuelGallons.toFixed(1)} gal` : `${remainingFuelLitres.toFixed(1)}/${totalFuelLitres.toFixed(1)} L`);
+          updateElementText(elements.labels.vehicleTab.fuelLevel, settings.fuelUnit === 'gal' ? `${fuel}% (${remainingFuelGallons.toFixed(1)}/${totalFuelGallons.toFixed(1)} gal)` : `${fuel}% (${remainingFuelLitres.toFixed(1)}/${totalFuelLitres.toFixed(1)} L)`);
 
           // Transmission Type
           updateElementText(elements.labels.vehicleTab.transmissionType, toTitleCase(streams.engineInfo[13]));
@@ -568,9 +684,11 @@ angular.module('beamng.apps')
 
         // Vehicle warnings:
         // Trying to drive with park brake on
-        if ((streams.engineInfo[18] === 1 || speedMph > 3) && streams.electrics.parkingbrake > 0 && !warningsShown.includes('parkBrakeOnWhileDriving')) {
-          showShortMessage('Your park brake is on. Release your park brake to prevent brake damage and overheating.', false);
-          warningsShown.push('parkBrakeOnWhileDriving');
+        if (settings.alerts.alertParkBrakeOn === true) {
+          if ((streams.engineInfo[18] === 1 || speedMph > 3) && streams.electrics.parkingbrake > 0 && !warningsShown.includes('parkBrakeOnWhileDriving')) {
+            showShortMessage('Your park brake is on. Release your park brake to prevent brake damage and overheating.', false);
+            warningsShown.push('parkBrakeOnWhileDriving');
+          }
         }
         
         if (warningsShown.includes('parkBrakeOnWhileDriving') && streams.electrics.parkingbrake === 0) {
@@ -580,23 +698,23 @@ angular.module('beamng.apps')
         }
 
         // Damage has changed
-        if (lastDamagePercent !== undefined && lastDamagePercent !== damage && damage !== 0) showShortMessage(`Damage ${damage}%`);
+        if (settings.alerts.alertDamage && lastDamagePercent !== undefined && lastDamagePercent !== damage && damage !== 0) showShortMessage(`Damage ${damage}%`);
         lastDamagePercent = damage;
 
         // 10%, 5% and 0% fuel remaining warnings
-        if (fuel <= 10 && !warningsShown.includes('fuel10Percent')) {
+        if (settings.alerts.alertFuel10Percent && fuel <= 10 && !warningsShown.includes('fuel10Percent')) {
           showShortMessage(`10% fuel remaining`);
           warningsShown.push('fuel10Percent');
         }
 
-        if (fuel <= 5 && !warningsShown.includes('fuel5Percent')) {
+        if (settings.alerts.alertFuel5Percent && fuel <= 5 && !warningsShown.includes('fuel5Percent')) {
           showShortMessage(`5% fuel remaining`);
           warningsShown.push('fuel5Percent');
         }
 
-        if (fuel === 0 && !warningsShown.includes('fuel0Percent')) {
+        if (settings.alerts.alertOutOfFuel && fuel === 0 && !warningsShown.includes('outOfFuel')) {
           showShortMessage(`Your vehicle has run out of fuel!`);
-          warningsShown.push('fuel0Percent');
+          warningsShown.push('outOfFuel');
         }
       });
 
@@ -608,7 +726,6 @@ angular.module('beamng.apps')
         averageFuelConsumptionLitres = null;
         averageFuelConsumptionGallons = null;
         lastDamagePercent = null;
-        lastDistanceTravelled = null;
         lastFuelLevel = null;
         lastSpeed = null;
         warningsShown = [];

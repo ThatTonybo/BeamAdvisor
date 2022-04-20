@@ -1,19 +1,15 @@
 {
   "name" : "Beam Advisor",
   "author": "ThatTonybo",
-  "version": "1.0",
+  "version": "1.1",
   "description": "ETS2/ATS inspired information+navigation widget for BeamNG.drive",
   "directive": "beamAdvisor",
   "domElement": "<beam-advisor></beam-advisor>",
   "css": {
     "width": "600px",
     "height": "450px",
-    "min-width": "600px",
-    "min-height": "450px",
-    "max-width": "600px",
-    "max-height": "450px",
     "bottom": "25px",
     "right": "25px"
   },
-  "preserveAspectRatio": true
+  "preserveAspectRatio": false
 }
