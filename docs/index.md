@@ -26,7 +26,7 @@
 [youtu.be/rqWGcUtyfso](https://youtu.be/rqWGcUtyfso)
 
 ## Download
-You can find Beam Advisor on the [BeamNG.drive repository]()
+You can find Beam Advisor on the [BeamNG.drive repository](https://www.beamng.com/resources/beam-advisor.22346/) or in-game by searching "Beam Advisor"
 
 ## Feature requests & bugs
 If you have found a bug or want to suggest a feature or change, use the [GitHub issues](https://github.com/ThatTonybo/BeamAdvisor/issues) page
