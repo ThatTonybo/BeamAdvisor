@@ -6,6 +6,12 @@
   width: 100%;
 }
 
+/* .hide can be added to hide the entire UI, if the player gets out of a vehicle */
+.beam-advisor.hide {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 
 
 /* --- Utilities --- */
@@ -48,15 +54,9 @@
   border-radius: 18px;
 }
 
-/* .hidden can be added to make the border treansparent */
+/* .hidden can be added to make the border transparent */
 .beam-advisor .frame-outer.hidden {
   border-color: transparent !important;
-}
-
-/* .hide can be added to hide the entire UI, if the player gets out of a vehicle */
-.beam-advisor .frame-outer.hide {
-  display: none !important;
-  visibility: hidden !important;
 }
 
 /* Inner frame */
@@ -427,4 +427,32 @@
 .beam-advisor.low-space-mode .nav-button img {
   width: auto;
   height: 24px !important;
+}
+
+
+
+/* --- Hiding --- */
+
+/* .gps-only can be added to hide everything but the content container */
+.beam-advisor.gps-only *:not(.content-container) {
+  background-color: transparent !important;
+  color: transparent !important;
+  border-color: transparent !important;
+  background-image: none !important;
+}
+
+.beam-advisor.gps-only img {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* .gone can be added to hide the UI, but doesn't make it uninteractable */
+.beam-advisor.gone * {
+  opacity: 0.05;
+}
+
+.beam-advisor.gone .frame-outer {
+  border: none !important;
+  border-bottom: 6px solid #ffffff3d !important;
+  border-radius: 0 !important;
 }

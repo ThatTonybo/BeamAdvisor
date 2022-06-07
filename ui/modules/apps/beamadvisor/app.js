@@ -116,6 +116,7 @@ angular.module('beamng.apps')
         weightUnit: localStorage.getItem('beamAdvisor-weightUnit') || 'kg',
         timeDisplay: localStorage.getItem('beamAdvisor-timeDisplay') || '24h',
         frameAppearance: localStorage.getItem('beamAdvisor-frameAppearance') || 'full',
+        visibility: localStorage.getItem('beamAdvisor-visibility') || 'normal',
         lowSpaceMode: ensureBool(localStorage.getItem('beamAdvisor-lowSpaceMode')),
         playAlertSound: ensureBool(localStorage.getItem('beamAdvisor-playAlertSound')),
         alerts: {
@@ -146,6 +147,7 @@ angular.module('beamng.apps')
       let lastDamagePercent = null;
       let dte;
       let dteMi;
+      let rightClicked = false;
 
       // Define elements
       let elements = {
@@ -249,7 +251,9 @@ angular.module('beamng.apps')
             timeDisplay24h: document.getElementById('btn-timeDisplay-24h'),
 
             frameAppearanceFull: document.getElementById('btn-frameAppearance-full'),
-            frameAppearanceReduced: document.getElementById('btn-frameAppearance-reduced')
+            frameAppearanceReduced: document.getElementById('btn-frameAppearance-reduced'),
+
+            changeMapZoom: document.getElementById('btn-changeMapZoom')
           }
         },
 
@@ -298,7 +302,7 @@ angular.module('beamng.apps')
 
       // Change frame appearance
       const changeFrameAppearance = (newAppearance) => {
-        settings.frameAppearance = newAppearance;
+        if (settings.frameAppearance !== newAppearance) settings.frameAppearance = newAppearance;
 
         if (newAppearance === 'full') {
           elements.containers.outerFrame.classList.remove('hidden');
@@ -314,6 +318,26 @@ angular.module('beamng.apps')
           elements.containers.logo.classList.add('hidden');
 
           updateActiveButton(`frameAppearanceReduced`, `frameAppearanceFull`);
+        }
+      }
+
+      // Change visibility
+      const changeVisibility = (newVisibility) => {
+        if (settings.visibility !== newVisibility) settings.visibility = newVisibility;
+
+        if (newVisibility === 'normal') {
+          elements.root.classList.remove('gps-only');
+          elements.root.classList.remove('gone');
+        }
+
+        if (newVisibility === 'gpsOnly') {
+          elements.root.classList.add('gps-only');
+          elements.root.classList.remove('gone');
+        }
+
+        if (newVisibility === 'hidden') {
+          elements.root.classList.add('gone');
+          elements.root.classList.remove('gps-only');
         }
       }
 
@@ -454,9 +478,22 @@ angular.module('beamng.apps')
       elements.checkboxes.configurationTab.alertFuel5Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel5Percent,  elements.labels.configurationTab.alertFuel5Percent, 'fuel5Percent', 'Fuel5Percent'));
       elements.checkboxes.configurationTab.alertOutOfFuel.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertOutOfFuel,  elements.labels.configurationTab.alertOutOfFuel, 'outOfFuel', 'OutOfFuel'));
 
+      // Add right click handler for changing visibility:
+      elements.root.addEventListener('mousedown', (e) => {
+        if (e.button === 2 && rightClicked === false) {
+          rightClicked = true;
+
+          if (settings.visibility === 'normal') { changeVisibility('gpsOnly'); rightClicked = false; return; }
+          if (settings.visibility === 'gpsOnly') { changeVisibility('hidden'); rightClicked = false; return; }
+          if (settings.visibility === 'hidden') { changeVisibility('normal'); rightClicked = false; return; }
+        }
+      });
+
       // On load:
       // - set the frame appearance
       changeFrameAppearance(settings.frameAppearance);
+      // - set the visibility level
+      changeVisibility(settings.visibility);
       // - set the active tab
       elements.tabs[`tab${toTitleCase(activeTab)}`].classList.add('active');
       elements.buttons.bottomBar[`tab${toTitleCase(activeTab)}`].classList.add('active');
@@ -484,6 +521,7 @@ angular.module('beamng.apps')
 
         // Save settings
         Object.entries(settings).forEach(([key, val]) => {
+          if (key === 'alerts') return;
           localStorage.setItem(`beamAdvisor-${key}`, val);
         });
 
@@ -497,13 +535,16 @@ angular.module('beamng.apps')
       // Triggers when data from a requested stream changes
       scope.$on('streamsUpdate', (event, streams) => {
         // Prevent errors if the player isn't in a car
-        if (elements.containers.outerFrame.classList.contains('hide') && streams.electrics.watertemp !== undefined) elements.containers.outerFrame.classList.remove('hide');
-        if (elements.containers.outerFrame.classList.contains('hide')) return;
-        if (!streams.electrics.watertemp || streams.electrics.watertemp === undefined) elements.containers.outerFrame.classList.add('hide');
+        if (elements.root.classList.contains('hide') && streams.electrics.watertemp !== undefined) elements.root.classList.remove('hide');
+        if (elements.root.classList.contains('hide')) return;
+        if (!streams.electrics.watertemp) elements.root.classList.add('hide');
+
+        // Stop updating if hidden
+        if (elements.root.classList.contains('gone')) return;
 
         // Speed
-        // (Airspeed * 1.12) * 2 gives a (mostly) accurate speed in MPH
-        const rawSpeedMph = (streams.electrics.airspeed * 1.12) * 2;
+        // This is in m/s (meters per second), so m/s to mph is n * 2.237
+        const rawSpeedMph = streams.electrics.wheelspeed * 2.237;
         const speedMph = Math.round(rawSpeedMph);
         const speedKph = Math.round(speedMph * 1.609344);
         updateElementText(elements.labels.topBar.speed, settings.speedUnit === 'mph' ? `${speedMph} mph` : `${speedKph} km/h`);
@@ -733,6 +774,7 @@ angular.module('beamng.apps')
         averageFuelLevels = [];
         dte = null;
         dteMi = null;
+        rightClicked = false;
       });
 
       // Navigation
@@ -754,6 +796,8 @@ angular.module('beamng.apps')
 
       var boolConfig = [false, false, true, true, false, false, true, false];
 
+      var baseMapZoomSpeed = 25;
+      var mapZoomSpeed = 0;
       var mapScale = 1;
       var routeScale = 1/3;
       var zoomStates = [1000, 500, 0, -500, -1000, -2000, -4000, -8000, -16000];
@@ -1207,6 +1251,49 @@ angular.module('beamng.apps')
       bngApi.engineLua('extensions.ui_uiNavi.requestUIDashboardMap()');
       bngApi.engineLua(`extensions.core_collectables.sendUIState()`);
       bngApi.engineLua(`if gameplay_missions_missionEnter then gameplay_missions_missionEnter.sendMissionLocationsToMinimap() end`);
+
+      function changeGPSMapZoom() {
+        zoomSlot++;
+        mapZoomSlot = zoomSlot < zoomStates.length ? zoomSlot : zoomSlot = 0;
+        
+          async function animatedZoom() {
+            mapZoomSpeed = Math.ceil(baseMapZoomSpeed*(zoomStates[mapZoomSlot]-mapZoom)/zoomStates[baseZoomLevel])
+            if (mapZoom > zoomStates[mapZoomSlot] )
+            var i = 0
+            while (mapZoom != zoomStates[mapZoomSlot]) {
+              i++
+              if (i > 1000) {
+                mapZoom = zoomStates[mapZoomSlot] // makes sure it doesnt get stuck in an infinite loop
+                break;
+              } else if (mapZoom > zoomStates[0]) {
+                mapZoom = zoomStates[mapZoomSlot] // resets to how it should be
+                break;
+              } else if (mapZoom < zoomStates[zoomStates.length - 1]) {
+                mapZoom = zoomStates[zoomStates.length - 1] // resets to how it should be
+                break;
+              } else {
+                mapZoom = mapZoom - mapZoomSpeed
+                if (mapZoomSpeed < 0) {
+                  if (mapZoom + 20 >= zoomStates[mapZoomSlot]) {
+                    mapZoom = zoomStates[mapZoomSlot];
+                    break;
+                  }
+                } else {
+                  if (mapZoom - 20 <= zoomStates[mapZoomSlot]) {
+                    mapZoom = zoomStates[mapZoomSlot];
+                    break;
+                  }
+                }
+                await sleep(15);
+              }
+            }
+            setupMap(null);
+          }
+          animatedZoom();
+      }
+
+      // This has to be done here so the function exists
+      elements.buttons.configurationTab.changeMapZoom.addEventListener('click', () => changeGPSMapZoom());
     }
   };
 }]);
