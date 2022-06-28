@@ -638,8 +638,8 @@ angular.module('beamng.apps')
         if (streams.electrics.lowfuel === 0 || fuel > 10) updateElementColor(elements.labels.topBar.fuel, '#ffffff');
 
         // Temperature
-        const tempF = streams.electrics.watertemp.toFixed(1);
-        const tempC = (((tempF - 32) * 5) / 9).toFixed(1);
+        const tempC = streams.electrics.watertemp.toFixed(1);
+        const tempF = (((tempC * 9) / 5) + 32).toFixed(1);
         updateElementText(elements.labels.topBar.temp, `<img src="/ui/modules/apps/beamadvisor/images/icons/temp.png" /> ${settings.tempUnit === 'f' ? `${tempF}°F` : `${tempC}°C`}`)
 
         // Day & Time
