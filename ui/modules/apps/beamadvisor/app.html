@@ -20,6 +20,18 @@
         <div class="content-container">
           <!-- Navigation tab -->
           <div class="tab" id="tab-navigation">
+            <div class="speed-limit-sign ets2-speed-limit" id="speedLimitSign1">
+              <span id="speedLimit1"></span>
+            </div>
+
+            <div class="speed-limit-sign ats-speed-limit" id="speedLimitSign2">
+              <span id="speedLimit2"></span>
+            </div>
+
+            <div class="speed-limit-sign us-speed-limit" id="speedLimitSign3">
+              <span class="info">Speed Limit</span>
+              <span id="speedLimit3"></span>
+            </div>
 
             <div id="navigation-root">
               <div class="navigation-wrap" id="overflow-wrap">
@@ -121,7 +133,7 @@
 
           <!-- Configuration tab -->
           <div class="tab" id="tab-configuration">
-            <h4 class="row">Appearance</h4>
+            <h4 class="row">Advisor Appearance</h4>
 
             <p class="row bg-dark">
               Frame
@@ -146,6 +158,42 @@
                 <label for="lowSpaceMode" id="lowSpaceMode-value">Disabled</label>
               </span>
             </p>
+
+            <h4 class="row">Navigation/GPS</h4>
+
+            <p class="row bg-dark">
+              Change Zoom Level
+              <span style="float: right;">
+                <button class="ui-button" id="btn-changeMapZoom">Change Zoom</button>
+              </span>
+            </p>
+
+            <h4 class="row">Speed Limit</h4>
+
+            <p class="row bg-dark">
+              Show Speed Limit Sign
+              <span style="float: right;">
+                <input type="checkbox" id="chk-speedLimitSign-enabled" name="speedLimitSign-enabled" value="speedLimitSignEnabled" />
+                <label for="speedLimitSign-enabled" id="speedLimitSign-enabled-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row">
+              Change Speed Display Color if Exceeding Limit
+              <span style="float: right;">
+                <input type="checkbox" id="chk-changeSpeedColorIfExceedingLimit-enabled" name="changeSpeedColorIfExceedingLimit-enabled" value="changeSpeedColorIfExceedingLimitEnabled" />
+                <label for="changeSpeedColorIfExceedingLimit-enabled" id="changeSpeedColorIfExceedingLimit-enabled-value">Disabled</label>
+              </span>
+            </p>
+
+            <p class="row bg-dark">
+              Sign Type
+              <span style="float: right;">
+                <button class="ui-button" id="btn-signType-ets2">ETS2 Style</button>
+                <button class="ui-button" id="btn-signType-ats">ATS Style</button>
+                <button class="ui-button" id="btn-signType-us">Actual US Style</button>
+              </span>
+            </p>   
 
             <h4 class="row">Units</h4>
 
@@ -200,10 +248,10 @@
               </span>
             </p>
 
-            <hr style="margin: 10px 20px; border: 1px solid #636363a2;" />
+            <p class="row" style="color: #a3a3a3">Enable/Disable Individual Alerts:</p>
 
             <p class="row bg-dark">
-              Park Brake On Alert
+              Parking Brake On Alert
               <span style="float: right;">
                 <input type="checkbox" id="chk-alert-parkBrakeOn" name="alert-parkBrakeOn" value="AlertParkBrakeOn" />
                 <label for="alert-parkBrakeOn" id="alert-parkBrakeOn-value">Disabled</label>
@@ -241,15 +289,6 @@
                 <label for="alert-outOfFuel" id="alert-outOfFuel-value">Disabled</label>
               </span>
             </p>
-
-            <h4 class="row">Navigation/GPS</h4>
-
-            <p class="row bg-dark">
-              Change Zoom Level
-              <span style="float: right;">
-                <button class="ui-button" id="btn-changeMapZoom">Change Zoom</button>
-              </span>
-            </p>
           </div>
 
           <!-- Information tab -->
@@ -262,7 +301,9 @@
             <p style="color: white; text-align: center; font-size: 14px;">ETS2/ATS inspired information+navigation widget for BeamNG.drive</p>
             <p style="color: #a3a3a3; text-align: center; font-size: 12px;">(c) 2022 ThatTonybo. Licensed under the MIT License. This is not endorsed by or related to SCS Software, Euro Truck Simulator 2 or American Truck Simulator in any way, shape or form.</p>
 
-            <a href="https://thattonybo.github.io/BeamAdvisor" style="text-align: center; background-color: transparent;">thattonybo.github.io/BeamAdvisor</a>
+            <p style="text-align: center;">
+              <a href="https://beamng.com/resources/beam-advisor.22346" style="text-align: center; background-color: transparent;">beamng.com/resources/beam-advisor.22346</a>
+            </p>
           </div>
         </div>
 

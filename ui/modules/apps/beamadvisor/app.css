@@ -6,12 +6,6 @@
   width: 100%;
 }
 
-/* .hide can be added to hide the entire UI, if the player gets out of a vehicle */
-.beam-advisor.hide {
-  display: none !important;
-  visibility: hidden !important;
-}
-
 
 
 /* --- Utilities --- */
@@ -207,6 +201,23 @@
   max-height: 30px !important;
   padding: 4px 24px;
   margin: 0;
+  transition: background .3s ease-in-out;
+}
+
+/* Speed display can have .over-min, .over-mid or .over-max applied for varying levels of red to indicate the car is exceeding the speed limit */
+.beam-advisor .top-bar #speed.over-min {
+  background: rgb(82, 42, 42);
+  background: linear-gradient(180deg, rgb(82, 42, 42) 0%, rgb(126, 64, 64) 50%, rgb(82, 42, 42) 100%);
+}
+
+.beam-advisor .top-bar #speed.over-mid {
+  background: rgb(94, 22, 22);
+  background: linear-gradient(180deg, rgb(94, 22, 22) 0%, rgb(138, 33, 33) 50%, rgb(94, 22, 22) 100%);
+}
+
+.beam-advisor .top-bar #speed.over-max {
+  background: rgb(124, 23, 23);
+  background: linear-gradient(180deg, rgb(124, 23, 23) 0%, rgb(175, 28, 28) 50%, rgb(124, 23, 23) 100%);
 }
 
 /* Gear display */
@@ -283,6 +294,7 @@
 /* ...apart from the active one */
 .beam-advisor .content-container .tab.active {
   display: block !important;
+  position: relative;
 }
 
 /* Provides styling for content rows */
@@ -290,6 +302,7 @@
   color: white;
   padding: 4px 20px;
   margin: 0;
+  overflow-x: hidden;
 }
 
 /* Provides styling for the short message box */
@@ -375,6 +388,75 @@
   animation: bounce 1s cubic-bezier(0.4,0.1,0.2,1) both;
 }
 
+/* General class that covers all speed limit designs */
+.speed-limit-sign {
+  top: 20px;
+  left: 22px;
+}
+
+/* Speed limit display - European/ETS2 style */
+.ets2-speed-limit {
+  background: white;
+  color: black;
+  font-weight: bold;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 6px solid #FD0703;
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Specifically for ETS2 style */
+  top: 20px;
+  left: 20px;
+}
+
+/* Speed limit display - US/ATS style */
+.ats-speed-limit {
+  background: white;
+  color: black;
+  font-weight: bold;
+  width: 35px;
+  height: 35px;
+  border-radius: 2px;
+  border: 2px solid #999999;
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Speed limit display - actual US style */
+.us-speed-limit {
+  background: white;
+  color: black;
+  font-weight: bold;
+  width: 35px;
+  max-width: 35px !important;
+  height: 55px;
+  border-radius: 2px;
+  border: 2px solid #999999;
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+}
+
+.us-speed-limit .info {
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+
+
+/* --- Animations --- */
+
 /* Fade animation */
 @keyframes fade {
   from {
@@ -433,8 +515,14 @@
 
 /* --- Hiding --- */
 
+/* .hide can be added to hide the entire UI, if the player gets out of a vehicle */
+.beam-advisor.hide {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 /* .gps-only can be added to hide everything but the content container */
-.beam-advisor.gps-only *:not(.content-container) {
+.beam-advisor.gps-only * {
   background-color: transparent !important;
   color: transparent !important;
   border-color: transparent !important;
@@ -446,13 +534,34 @@
   visibility: hidden !important;
 }
 
+.beam-advisor.gps-only .nav-button.active {
+  border-color: transparent !important;
+  border-bottom: 4px solid transparent !important;
+}
+
 /* .gone can be added to hide the UI, but doesn't make it uninteractable */
 .beam-advisor.gone * {
-  opacity: 0.05;
+  opacity: 0.1;
 }
 
 .beam-advisor.gone .frame-outer {
   border: none !important;
-  border-bottom: 6px solid #ffffff3d !important;
+  border-bottom: 12px solid black !important;
   border-radius: 0 !important;
+}
+
+/* Hide speed limits not in use */
+.ets2-speed-limit.hide-speed-limit,
+.ats-speed-limit.hide-speed-limit,
+.us-speed-limit.hide-speed-limit {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide scroll bar in GPS only mode */
+.beam-advisor .content-container .tab.active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow-y: hidden !important;
 }

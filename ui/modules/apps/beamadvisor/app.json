@@ -1,8 +1,8 @@
 {
   "name" : "Beam Advisor",
   "author": "ThatTonybo",
-  "version": "1.2",
-  "description": "ETS2/ATS inspired information+navigation widget for BeamNG.drive",
+  "version": "1.3",
+  "description": "ETS2/ATS inspired navigation & information widget for BeamNG.drive",
   "directive": "beamAdvisor",
   "domElement": "<beam-advisor></beam-advisor>",
   "css": {

@@ -44,7 +44,7 @@ const ensureBool = (val) => {
   return false;
 }
 
-// Helper functions to update an element's text or color, preventing errors if it doesn't exist
+// Helper functions to update an element's text, color or background color, preventing errors if it doesn't exist
 const updateElementText = (element, val) => {
   if (!element) return;
   if (!val) return;
@@ -57,6 +57,13 @@ const updateElementColor = (element, val) => {
   if (!val) return;
 
   element.style.color = val;
+}
+
+const updateElementBackgroundColor = (element, val) => {
+  if (!element) return;
+  if (!val) return;
+
+  element.style.backgroundColor = val;
 }
 
 // Canvas clear function
@@ -97,6 +104,9 @@ angular.module('beamng.apps')
       // ...and add them to the stream manager
       StreamsManager.add(streamsList);
 
+      // Register custom Lua API for speed limit - credit to Zeit
+      bngApi.engineLua(`registerCoreModule('thattonybo/beamAdvisorNavAPI')`);
+
       // Set default settings for booleans
       if (!localStorage.getItem('beamAdvisor-lowSpaceMode')) localStorage.setItem('beamAdvisor-lowSpaceMode', false);
       if (!localStorage.getItem('beamAdvisor-playAlertSound')) localStorage.setItem('beamAdvisor-playAlertSound', true);
@@ -125,13 +135,17 @@ angular.module('beamng.apps')
           alertFuel10Percent: ensureBool(localStorage.getItem('beamAdvisor-alert-fuel10Percent')),
           alertFuel5Percent: ensureBool(localStorage.getItem('beamAdvisor-alert-fuel5Percent')),
           alertOutOfFuel: ensureBool(localStorage.getItem('beamAdvisor-alert-outOfFuel'))
-        }
+        },
+        speedLimitSignEnabled: ensureBool(localStorage.getItem('beamAdvisor-speedLimitSignEnabled')) || true,
+        changeSpeedColorIfExceedingLimitEnabled: ensureBool(localStorage.getItem('beamAdvisor-changeSpeedColorIfExceedingLimitEnabled')) || true,
+        signType: localStorage.getItem('beamAdvisor-speedLimitSign') || 'ets2',
       }
 
       // Define session variables
       let activeTab = localStorage.getItem('beamAdvisor-lastActiveTab') || 'navigation';
-      let odometer = Number(localStorage.getItem('beamAdvisor-lastOdometer')) || 0; // **Odometer and last speed are in mph**
+      let odometer = Number(localStorage.getItem('beamAdvisor-lastOdometer')) || 0; // Odometer and last speed are in mph
       let lastSpeed = 0;
+      let currentSpeedLimit = 0; // Speed limit is in mph
       let instantFuelConsumptionLitres;
       let instantFuelConsumptionGallons;
       let averageFuelConsumptionLitres;
@@ -148,6 +162,7 @@ angular.module('beamng.apps')
       let dte;
       let dteMi;
       let rightClicked = false;
+      let speedLimitInterval;
 
       // Define elements
       let elements = {
@@ -184,6 +199,15 @@ angular.module('beamng.apps')
             tabName: document.getElementById('tabName')
           },
 
+          navigationTab: {
+            speedLimitSign1: document.getElementById('speedLimitSign1'),
+            speedLimitSign2: document.getElementById('speedLimitSign2'),
+            speedLimitSign3: document.getElementById('speedLimitSign3'),
+            speedLimit1: document.getElementById('speedLimit1'),
+            speedLimit2: document.getElementById('speedLimit2'),
+            speedLimit3: document.getElementById('speedLimit3')
+          },
+
           tripTab: {
             odometer: document.getElementById('odometer'),
             instantFuelConsumption: document.getElementById('instantFuelConsumption'),
@@ -205,6 +229,9 @@ angular.module('beamng.apps')
           },
 
           configurationTab: {
+            speedLimitSign: document.getElementById('speedLimitSign-enabled-value'),
+            changeSpeedColorIfExceedingLimit: document.getElementById('changeSpeedColorIfExceedingLimit-enabled-value'),
+
             lowSpaceMode: document.getElementById('lowSpaceMode-value'),
             playAlertSound: document.getElementById('playAlertSound-value'),
 
@@ -231,6 +258,10 @@ angular.module('beamng.apps')
           },
 
           configurationTab: {
+            signTypeEts2: document.getElementById('btn-signType-ets2'),
+            signTypeAts: document.getElementById('btn-signType-ats'),
+            signTypeUs: document.getElementById('btn-signType-us'),
+
             speedUnitKph: document.getElementById('btn-speedUnit-kph'),
             speedUnitMph: document.getElementById('btn-speedUnit-mph'),
 
@@ -259,6 +290,9 @@ angular.module('beamng.apps')
 
         checkboxes: {
           configurationTab: {
+            speedLimitSign: document.getElementById('chk-speedLimitSign-enabled'),
+            changeSpeedColorIfExceedingLimit: document.getElementById('chk-changeSpeedColorIfExceedingLimit-enabled'),
+
             lowSpaceMode: document.getElementById('chk-lowSpaceMode'),
             playAlertSound: document.getElementById('chk-playAlertSound'),
 
@@ -295,6 +329,7 @@ angular.module('beamng.apps')
         if (!newTabButton) return;
 
         activeTab = newTabName;
+        localStorage.setItem('beamAdvisor-lastActiveTab', newTabName);
 
         newTab.classList.add('active');
         newTabButton.classList.add('active');
@@ -348,6 +383,11 @@ angular.module('beamng.apps')
         settings[id] = val;
 
         updateActiveButton(`${id}${toTitleCase(val)}`, `${id}${toTitleCase(oldBtn)}`);
+
+        if (id === 'signType') {
+          localStorage.setItem('beamAdvisor-signType', val);
+          changeSpeedLimitSign(val);
+        }
       }
 
       const updateActiveButton = (newBtn, oldBtn = undefined) => {
@@ -406,6 +446,72 @@ angular.module('beamng.apps')
         }
       }
 
+      // Change the visible speed limit sign
+      const changeSpeedLimitSign = (newID) => {
+        settings.signType = newID;
+
+        if (newID === 'ets2') {
+          if (settings.speedLimitSignEnabled) elements.labels.navigationTab.speedLimitSign1.classList.remove('hide-speed-limit');
+
+          elements.labels.navigationTab.speedLimitSign2.classList.add('hide-speed-limit');
+
+          elements.labels.navigationTab.speedLimitSign3.classList.add('hide-speed-limit');
+        }
+
+        if (newID === 'ats') {
+          elements.labels.navigationTab.speedLimitSign1.classList.add('hide-speed-limit');
+
+          if (settings.speedLimitSignEnabled) elements.labels.navigationTab.speedLimitSign2.classList.remove('hide-speed-limit');
+
+          elements.labels.navigationTab.speedLimitSign3.classList.add('hide-speed-limit');
+        }
+
+        if (newID === 'us') {
+          elements.labels.navigationTab.speedLimitSign1.classList.add('hide-speed-limit');
+
+          elements.labels.navigationTab.speedLimitSign2.classList.add('hide-speed-limit');
+
+          if (settings.speedLimitSignEnabled) elements.labels.navigationTab.speedLimitSign3.classList.remove('hide-speed-limit');
+        }
+      }
+
+      // Update the background color of the speed display
+      const updateSpeedDisplayBackgroundColor = (currentSpeed, speedLimit) => {
+        if (!settings.changeSpeedColorIfExceedingLimitEnabled) return;
+
+        if (currentSpeed > speedLimit) {
+          const overBy = currentSpeed - speedLimit;
+
+          // min = 1-3 over
+          if (overBy <= 3) {
+            elements.labels.topBar.speed.classList.add('over-min');
+
+            elements.labels.topBar.speed.classList.remove('over-mid');
+            elements.labels.topBar.speed.classList.remove('over-max');
+          }
+
+          // mid = 4-9 over
+          if (overBy >= 4 && overBy < 10) {
+            elements.labels.topBar.speed.classList.add('over-mid');
+
+            elements.labels.topBar.speed.classList.remove('over-min');
+            elements.labels.topBar.speed.classList.remove('over-max');
+          }
+
+          // max = 10+ over
+          if (overBy >= 10) {
+            elements.labels.topBar.speed.classList.add('over-max');
+
+            elements.labels.topBar.speed.classList.remove('over-min');
+            elements.labels.topBar.speed.classList.remove('over-mid');
+          }
+        } else {
+          elements.labels.topBar.speed.classList.remove('over-min');
+          elements.labels.topBar.speed.classList.remove('over-mid');
+          elements.labels.topBar.speed.classList.remove('over-max');
+        }
+      }
+
       // Set up button functionality:
       // Tabs
       elements.buttons.bottomBar.tabNavigation.addEventListener('click', () => changeActiveTab('navigation'));
@@ -416,6 +522,10 @@ angular.module('beamng.apps')
       elements.buttons.bottomBar.tabInformation.addEventListener('click', () => changeActiveTab('information'));
 
       // Configuration
+      elements.buttons.configurationTab.signTypeEts2.addEventListener('click', () => updateSetting('signType', 'ets2'));
+      elements.buttons.configurationTab.signTypeAts.addEventListener('click', () => updateSetting('signType', 'ats'));
+      elements.buttons.configurationTab.signTypeUs.addEventListener('click', () => updateSetting('signType', 'us'));
+
       elements.buttons.configurationTab.speedUnitKph.addEventListener('click', () => updateSetting('speedUnit', 'kph'));
       elements.buttons.configurationTab.speedUnitMph.addEventListener('click', () => updateSetting('speedUnit', 'mph'));
 
@@ -438,16 +548,50 @@ angular.module('beamng.apps')
       elements.buttons.configurationTab.frameAppearanceFull.addEventListener('click', () => changeFrameAppearance('full'));
       elements.buttons.configurationTab.frameAppearanceReduced.addEventListener('click', () => changeFrameAppearance('reduced'));
 
-      // Ui-related/other
+      // UI-related/other
       elements.buttons.tripTab.odometerReset.addEventListener('click', () => odometer = 0);
 
       // Set up checkbox functionality:
+      elements.checkboxes.configurationTab.speedLimitSign.addEventListener('click', () => {
+        if (elements.checkboxes.configurationTab.speedLimitSign.checked === true) {
+          settings.speedLimitSignEnabled = true;
+          localStorage.setItem('beamAdvisor-speedLimitSignEnabled', true);
+          elements.labels.configurationTab.speedLimitSign.innerHTML = 'Enabled';
+          changeSpeedLimitSign(localStorage.getItem('beamAdvisor-signType'));
+        }
+
+        if (elements.checkboxes.configurationTab.speedLimitSign.checked === false) {
+          settings.speedLimitSignEnabled = false;
+          localStorage.setItem('beamAdvisor-speedLimitSignEnabled', false);
+          elements.labels.configurationTab.speedLimitSign.innerHTML = 'Disabled';
+          elements.root.classList.remove('low-space-mode');
+
+          // Hide all speed limit signs
+          elements.labels.navigationTab.speedLimitSign1.classList.add('hide-speed-limit');
+          elements.labels.navigationTab.speedLimitSign2.classList.add('hide-speed-limit');
+          elements.labels.navigationTab.speedLimitSign3.classList.add('hide-speed-limit');
+        }
+      });
+
+      elements.checkboxes.configurationTab.changeSpeedColorIfExceedingLimit.addEventListener('click', () => {
+        if (elements.checkboxes.configurationTab.changeSpeedColorIfExceedingLimit.checked === true) {
+          settings.changeSpeedColorIfExceedingLimitEnabled = true;
+          localStorage.setItem('beamAdvisor-speedLimitSignEnabled', true);
+          elements.labels.configurationTab.changeSpeedColorIfExceedingLimit.innerHTML = 'Enabled';
+        }
+
+        if (elements.checkboxes.configurationTab.changeSpeedColorIfExceedingLimit.checked === false) {
+          settings.changeSpeedColorIfExceedingLimitEnabled = false;
+          localStorage.setItem('beamAdvisor-speedLimitSignEnabled', false);
+          elements.labels.configurationTab.changeSpeedColorIfExceedingLimit.innerHTML = 'Disabled';
+        }
+      });
+
       elements.checkboxes.configurationTab.lowSpaceMode.addEventListener('click' , () => {
         if (elements.checkboxes.configurationTab.lowSpaceMode.checked === true) {
           settings.lowSpaceMode = true;
           localStorage.setItem('beamAdvisor-lowSpaceMode', true);
           elements.labels.configurationTab.lowSpaceMode.innerHTML = 'Enabled';
-          elements.root.classList.add('low-space-mode');
         }
 
         if (elements.checkboxes.configurationTab.lowSpaceMode.checked === false) {
@@ -473,10 +617,10 @@ angular.module('beamng.apps')
       });
 
       elements.checkboxes.configurationTab.alertParkBrakeOn.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertParkBrakeOn, elements.labels.configurationTab.alertParkBrakeOn, 'parkBrakeOn', 'ParkBrakeOn'));
-      elements.checkboxes.configurationTab.alertDamage.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertDamage,  elements.labels.configurationTab.alertDamage, 'damage', 'Damage'));
-      elements.checkboxes.configurationTab.alertFuel10Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel10Percent,  elements.labels.configurationTab.alertFuel10Percent, 'fuel10Percent', 'Fuel10Percent'));
-      elements.checkboxes.configurationTab.alertFuel5Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel5Percent,  elements.labels.configurationTab.alertFuel5Percent, 'fuel5Percent', 'Fuel5Percent'));
-      elements.checkboxes.configurationTab.alertOutOfFuel.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertOutOfFuel,  elements.labels.configurationTab.alertOutOfFuel, 'outOfFuel', 'OutOfFuel'));
+      elements.checkboxes.configurationTab.alertDamage.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertDamage, elements.labels.configurationTab.alertDamage, 'damage', 'Damage'));
+      elements.checkboxes.configurationTab.alertFuel10Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel10Percent, elements.labels.configurationTab.alertFuel10Percent, 'fuel10Percent', 'Fuel10Percent'));
+      elements.checkboxes.configurationTab.alertFuel5Percent.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertFuel5Percent, elements.labels.configurationTab.alertFuel5Percent, 'fuel5Percent', 'Fuel5Percent'));
+      elements.checkboxes.configurationTab.alertOutOfFuel.addEventListener('click' , () => changeMessageSetting(elements.checkboxes.configurationTab.alertOutOfFuel, elements.labels.configurationTab.alertOutOfFuel, 'outOfFuel', 'OutOfFuel'));
 
       // Add right click handler for changing visibility:
       elements.root.addEventListener('mousedown', (e) => {
@@ -490,18 +634,23 @@ angular.module('beamng.apps')
       });
 
       // On load:
-      // - set the frame appearance
+      // - set the frame appearance:
       changeFrameAppearance(settings.frameAppearance);
-      // - set the visibility level
+      // - set the visibility level:
       changeVisibility(settings.visibility);
-      // - set the active tab
+      // - set the active tab:
       elements.tabs[`tab${toTitleCase(activeTab)}`].classList.add('active');
       elements.buttons.bottomBar[`tab${toTitleCase(activeTab)}`].classList.add('active');
-      // - set the active buttons on the configuration tab
+      // - ensure signType is correct:
+      settings.signType = localStorage.getItem('beamAdvisor-signType');
+      // - set the active buttons on the configuration tab:
       Object.entries(settings).forEach(([key, val]) => {
         updateActiveButton(`${key}${toTitleCase(val)}`);
       });
       // - set the checkbox labels and values:
+      if (settings.speedLimitSignEnabled) elements.checkboxes.configurationTab.speedLimitSign.click();
+      if (settings.changeSpeedColorIfExceedingLimitEnabled) elements.checkboxes.configurationTab.changeSpeedColorIfExceedingLimit.click();
+
       if (settings.lowSpaceMode === true) elements.checkboxes.configurationTab.lowSpaceMode.click();
       if (settings.playAlertSound === true) elements.checkboxes.configurationTab.playAlertSound.click();
 
@@ -510,6 +659,11 @@ angular.module('beamng.apps')
       if (settings.alerts.alertFuel10Percent === true) elements.checkboxes.configurationTab.alertFuel10Percent.click();
       if (settings.alerts.alertFuel5Percent === true) elements.checkboxes.configurationTab.alertFuel5Percent.click();
       if (settings.alerts.alertOutOfFuel === true) elements.checkboxes.configurationTab.alertOutOfFuel.click();
+      // - set up the speed limit signs: hide non active ones and show the active one (if enabled), set all limits to - until speed limit is found out:
+      if (settings.speedLimitSignEnabled) changeSpeedLimitSign(localStorage.getItem('beamAdvisor-signType'));
+      updateElementText(elements.labels.navigationTab.speedLimit1, '-');
+      updateElementText(elements.labels.navigationTab.speedLimit2, '-');
+      updateElementText(elements.labels.navigationTab.speedLimit3, '-');
 
       // Clean up handler
       scope.$on('$destroy', () => {
@@ -518,6 +672,14 @@ angular.module('beamng.apps')
 
         // Unload the navigation
         bngApi.engineLua('extensions.unload("ui_uiNavi")');
+
+        // Unload the custom Lua API
+        if (speedLimitInterval) {
+          clearInterval(speedLimitInterval);
+          speedLimitInterval = undefined;
+        }
+
+        //bngApi.engineLua('extensions.unload("thattonybo_beamAdvisorNavAPI")');
 
         // Save settings
         Object.entries(settings).forEach(([key, val]) => {
@@ -535,13 +697,13 @@ angular.module('beamng.apps')
       // Triggers when data from a requested stream changes
       scope.$on('streamsUpdate', (event, streams) => {
         // Prevent errors if the player isn't in a car
-        if (elements.root.classList.contains('hide') && streams.electrics.watertemp !== undefined) elements.root.classList.remove('hide');
+        if (elements.root.classList.contains('hide') && streams.electrics.gear !== undefined) elements.root.classList.remove('hide');
         if (elements.root.classList.contains('hide')) return;
-        if (!streams.electrics.watertemp) elements.root.classList.add('hide');
+        if (!streams.electrics.gear || streams.electrics.gear === undefined) elements.root.classList.add('hide');
 
         // Stop updating if hidden
         if (elements.root.classList.contains('gone')) return;
-
+        
         // Speed
         // This is in m/s (meters per second), so m/s to mph is n * 2.237
         const rawSpeedMph = streams.electrics.wheelspeed * 2.237;
@@ -549,8 +711,11 @@ angular.module('beamng.apps')
         const speedKph = Math.round(speedMph * 1.609344);
         updateElementText(elements.labels.topBar.speed, settings.speedUnit === 'mph' ? `${speedMph} mph` : `${speedKph} km/h`);
 
+        // Update speed display if the speed limit is known
+        if (settings.changeSpeedColorIfExceedingLimitEnabled && (currentSpeedLimit !== undefined && currentSpeedLimit !== null && currentSpeedLimit !== 0)) updateSpeedDisplayBackgroundColor(speedMph, currentSpeedLimit);
+
         // Calculate distance travelled and used fuel
-        const distanceTravelled = rawSpeedMph * 0.1 / (60 * 60);
+        const distanceTravelled = rawSpeedMph * 0.1 / 3600;
         const distanceTravelledKm = distanceTravelled * 1.609344;
         const totalFuelLitres = streams.engineInfo[12];
         const totalFuelGallons = totalFuelLitres * 0.264172;
@@ -604,7 +769,7 @@ angular.module('beamng.apps')
             }
 
             // Calculate DTE (distance till empty)
-            dte = remainingFuelLitres / (averageFuelConsumptionLitres / 100);
+            dte = remainingFuelLitres / (averageFuelConsumptionLitres * 0.01);
             dteMi = dte / 1.609;
           }
 
@@ -638,7 +803,7 @@ angular.module('beamng.apps')
         if (streams.electrics.lowfuel === 0 || fuel > 10) updateElementColor(elements.labels.topBar.fuel, '#ffffff');
 
         // Temperature
-        const tempF = streams.electrics.watertemp.toFixed(1);
+        const tempF = (streams.electrics.watertemp || 0).toFixed(1);
         const tempC = (((tempF - 32) * 5) / 9).toFixed(1);
         updateElementText(elements.labels.topBar.temp, `<img src="/ui/modules/apps/beamadvisor/images/icons/temp.png" /> ${settings.tempUnit === 'f' ? `${tempF}°F` : `${tempC}°C`}`)
 
@@ -727,7 +892,7 @@ angular.module('beamng.apps')
         // Trying to drive with park brake on
         if (settings.alerts.alertParkBrakeOn === true) {
           if ((streams.engineInfo[18] === 1 || speedMph > 3) && streams.electrics.parkingbrake > 0 && !warningsShown.includes('parkBrakeOnWhileDriving')) {
-            showShortMessage('Your park brake is on. Release your park brake to prevent brake damage and overheating.', false);
+            showShortMessage('Your parking brake is on. Release your park brake to prevent brake damage and overheating.', false);
             warningsShown.push('parkBrakeOnWhileDriving');
           }
         }
@@ -761,25 +926,27 @@ angular.module('beamng.apps')
 
       // Vehicle has been reset (regenerated) or a new vehicle was spawned in replacement
       scope.$on('VehicleReset', () => {
-        odometer = 0;
+        odometer = Number(localStorage.getItem('beamAdvisor-lastOdometer')) || 0;
+        lastSpeed = 0;
+        currentSpeedLimit = 0;
         instantFuelConsumptionLitres = null;
         instantFuelConsumptionGallons = null;
         averageFuelConsumptionLitres = null;
         averageFuelConsumptionGallons = null;
-        lastDamagePercent = null;
         lastFuelLevel = null;
-        lastSpeed = null;
-        warningsShown = [];
         instantAverageFuelLevels = [];
         averageFuelLevels = [];
+        warningsShown = [];
+        lastDamagePercent = null;
         dte = null;
         dteMi = null;
         rightClicked = false;
       });
 
       // Navigation
-      // Everything below comment was written by Toastery and the BeamNG.drive team, used with permission from Toastery.
+      // Everything *mostly* below this comment was written by Toastery and the BeamNG.drive team, used with permission from Toastery.
       // Some code has been tidied up or modified for use in this project, and some comments have been removed.
+      // And a bit of code after this enormous block is mine.
       // Thank you :) -Tony
       var root = document.getElementById('navigation-root');
       var mapcontainer = root.children[0].children[0];
@@ -1248,10 +1415,6 @@ angular.module('beamng.apps')
         }
       }
 
-      bngApi.engineLua('extensions.ui_uiNavi.requestUIDashboardMap()');
-      bngApi.engineLua(`extensions.core_collectables.sendUIState()`);
-      bngApi.engineLua(`if gameplay_missions_missionEnter then gameplay_missions_missionEnter.sendMissionLocationsToMinimap() end`);
-
       function changeGPSMapZoom() {
         zoomSlot++;
         mapZoomSlot = zoomSlot < zoomStates.length ? zoomSlot : zoomSlot = 0;
@@ -1292,8 +1455,39 @@ angular.module('beamng.apps')
           animatedZoom();
       }
 
+      // Load navigation
+      bngApi.engineLua(`extensions.ui_uiNavi.requestUIDashboardMap()`);
+      bngApi.engineLua(`extensions.core_collectables.sendUIState()`);
+      bngApi.engineLua(`if gameplay_missions_missionEnter then gameplay_missions_missionEnter.sendMissionLocationsToMinimap() end`);
+
+      // Back to my code:
+      // Load custom Lua API for getting speed limit - credit to Zeit, again
+      bngApi.engineLua(`extensions.load("thattonybo_beamAdvisorNavAPI")`);
+
+      // Change map zoom butrton functionality
       // This has to be done here so the function exists
       elements.buttons.configurationTab.changeMapZoom.addEventListener('click', () => changeGPSMapZoom());
+
+      // Update speed limit every 2 seconds
+    speedLimitInterval = setInterval(() => {
+      bngApi.engineLua(`thattonybo_beamAdvisorNavAPI.getSpeedLimit()`, function (data) {
+        if (elements.root.classList.contains('hide')) return;
+        if (elements.root.classList.contains('gone')) return;
+
+        const speedLimitMph = Math.round(data.speedLimit * 2.237);
+
+        if (currentSpeedLimit !== speedLimitMph) {
+          if (!speedLimitMph || speedLimitMph === 0) currentSpeedLimit = '-';
+          else currentSpeedLimit = speedLimitMph;
+
+          const speedLimitKph = Math.round(speedLimitMph * 1.609);
+
+          updateElementText(elements.labels.navigationTab.speedLimit1, settings.speedUnit === 'mph' ? speedLimitMph : speedLimitKph);
+          updateElementText(elements.labels.navigationTab.speedLimit2, settings.speedUnit === 'mph' ? speedLimitMph : speedLimitKph);
+          updateElementText(elements.labels.navigationTab.speedLimit3, settings.speedUnit === 'mph' ? speedLimitMph : speedLimitKph);
+        }
+      });
+    }, (2 * 1000));
     }
   };
 }]);
