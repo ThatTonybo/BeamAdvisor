@@ -388,12 +388,6 @@
   animation: bounce 1s cubic-bezier(0.4,0.1,0.2,1) both;
 }
 
-/* General class that covers all speed limit designs */
-.speed-limit-sign {
-  top: 20px;
-  left: 22px;
-}
-
 /* Speed limit display - European/ETS2 style */
 .ets2-speed-limit {
   background: white;
@@ -408,7 +402,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Specifically for ETS2 style */
   top: 20px;
   left: 20px;
 }
@@ -427,6 +420,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  top: 20px;
+  left: 22px;
 }
 
 /* Speed limit display - actual US style */
@@ -446,6 +441,8 @@
   justify-content: space-around;
   align-items: center;
   text-align: center;
+  top: 20px;
+  left: 22px;
 }
 
 .us-speed-limit .info {
@@ -559,7 +556,7 @@
 }
 
 /* Hide scroll bar in GPS only mode */
-.beam-advisor .content-container .tab.active {
+.beam-advisor.gps-only .content-container .tab.active {
   outline: none !important;
   border: none !important;
   box-shadow: none !important;
