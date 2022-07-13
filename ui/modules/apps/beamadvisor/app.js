@@ -779,14 +779,19 @@ angular.module('beamng.apps')
         }
 
         // Gear
-        let gear;
-        if (streams.engineInfo[16] === 0) gear = 'N'; // Neutral
-        else if (streams.engineInfo[16] <= -1) gear = `R${Math.abs(streams.engineInfo[16])}`; // Reverse
-        else {
-          if (streams.engineInfo[13].toLowerCase() === 'auto') gear = `A${streams.engineInfo[16]}`;
-          else gear = streams.engineInfo[16];
+        var geartxt;
+        if(streams.engineInfo[13] == "manual") {
+          let gearint = streams.engineInfo[5];
+          let gear = gearint.toString();
+          if(gearint == 0) gear = 'N';
+          else if(gearint == -1) gear = 'R';
+          else if(-gearint > 1) gear = 'R' + (-gearint);
+          geartxt = gear
         }
-        updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${gear}`);
+        else{
+          geartxt = ["P","R","N","D","2","1"][Math.round(streams.electrics.gear_A*5)];
+        }
+        updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${geartxt}`);
 
         // Damage
         let damage = Math.round(percentage(Number(streams.stats ? (streams.stats.beams_deformed || 0) : 0), Number(1600)));
