@@ -699,7 +699,7 @@ angular.module('beamng.apps')
         // Prevent errors if the player isn't in a car
         if (elements.root.classList.contains('hide') && streams.electrics.gear !== undefined) elements.root.classList.remove('hide');
         if (elements.root.classList.contains('hide')) return;
-        if (!streams.electrics.gear || streams.electrics.gear === undefined) elements.root.classList.add('hide');
+        if (streams.electrics.gear === undefined) elements.root.classList.add('hide');
 
         // Stop updating if hidden
         if (elements.root.classList.contains('gone')) return;
