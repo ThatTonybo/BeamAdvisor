@@ -780,23 +780,20 @@ angular.module('beamng.apps')
 
         // Gear
         let gear;
-          if (streams.engineInfo[16] === 0) {
-            gear = 'N'; // Neutral
-          } else if (streams.engineInfo[16] <= -1) {
-            gear = `R${Math.abs(streams.engineInfo[16])}`; // Reverse
-              } else {
-                if (streams.engineInfo[13].toLowerCase() === 'auto') {
-                  if (streams.engineInfo[16] === 1) {
-                    gear = 'D'; // Drive
-                  } else if (streams.engineInfo[16] === -1) {
-                    gear = `S${streams.engineInfo[16] - 1}`; // Sport mode
-                  } else {
-                    gear = `A${streams.engineInfo[16] - 1}`; // Other automatic gears
-                  }
-                    } else {
-                      gear = `M${streams.engineInfo[16]}`; // Manual gear
-                    }
-              }
+if (streams.engineInfo[16] === 0) {
+  gear = 'N'; // Neutral
+} else if (streams.engineInfo[16] <= -1) {
+  gear = `R${Math.abs(streams.engineInfo[16])}`; // Reverse
+} else {
+  const transmissionType = streams.engineInfo[13].toLowerCase();
+  if (transmissionType === 'manual') {
+    gear = `M${streams.engineInfo[16]}`; // Manual transmission
+  } else if (transmissionType === 'auto' || transmissionType === 'dct' || transmissionType === 'cvt') {
+    gear = `A${streams.engineInfo[16]}`; // Automatic transmission
+  } else {
+    gear = streams.engineInfo[16]; // Unknown transmission type, just display gear index
+  }
+}
 
         updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${gear}`);
 
