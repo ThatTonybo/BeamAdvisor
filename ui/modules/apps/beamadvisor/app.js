@@ -781,12 +781,12 @@ angular.module('beamng.apps')
         // Gear
         let gear;
         if (data.electrics.gear == 0) {
-				  gear = 'N';
-				} else if (data.electrics.gear < 0) {
-				  gear = `R${Math.abs(streams.engineInfo[16])}`;
-				} else {
-				  gear = data.electrics.gear;
-				}
+		gear = 'N';
+	} else if (data.electrics.gear < 0) {
+		gear = `R${Math.abs(streams.engineInfo[16])}`;
+	} else {
+		gear = data.electrics.gear;
+	}
 
 // Update gear information whenever drive mode changes
 function updateDriveMode(driveModeName, streams) {
