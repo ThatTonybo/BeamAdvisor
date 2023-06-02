@@ -783,7 +783,7 @@ angular.module('beamng.apps')
         if (streams.electrics.gear == 0) {
 		      gear = 'N';
 	      } else if (streams.electrics.gear < 0) {
-		      gear = `R${Math.abs(streams.engineInfo[16])}`;
+		      gear = 'R';
 	      } else {
 		      gear = streams.electrics.gear;
 	      }
