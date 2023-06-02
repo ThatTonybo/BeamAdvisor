@@ -780,28 +780,13 @@ angular.module('beamng.apps')
 
         // Gear
         let gear;
-
-function updateGearInfo(driveModeName, streams) {
-  if (streams.engineInfo[16] === 0) {
-    gear = 'N'; // Neutral
-  } else if (streams.engineInfo[16] <= -1) {
-    gear = `R${Math.abs(streams.engineInfo[16])}`; // Reverse
-  } else if (driveModeName === 'Sport') { // Example: if drive mode is "Sport", set gear to "S" for manual transmission
-    gear = `S${streams.engineInfo[16]}`;
-  } else {
-    const transmissionType = streams.engineInfo[13].toLowerCase();
-    if (transmissionType === 'manual') {
-      gear = `M${streams.engineInfo[16]}`; // Manual transmission
-    } else if (transmissionType === 'auto' || transmissionType === 'dct' || transmissionType === 'cvt') {
-      gear = `A${streams.engineInfo[16]}`; // Automatic transmission
-    } else {
-      gear = streams.engineInfo[16]; // Unknown transmission type, just display gear index
-    }
-  }
-
-  // Update gear information in the UI
-  document.getElementById('gearInfo').innerText = gear;
-}
+        if (data.electrics.gear == 0) {
+				  gear = 'N';
+				} else if (data.electrics.gear < 0) {
+				  gear = `R${Math.abs(streams.engineInfo[16])}`;
+				} else {
+				  gear = data.electrics.gear;
+				}
 
 // Update gear information whenever drive mode changes
 function updateDriveMode(driveModeName, streams) {
