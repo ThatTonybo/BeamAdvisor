@@ -780,12 +780,12 @@ angular.module('beamng.apps')
 
         // Gear
         let gear;
-        if (data.electrics.gear == 0) {
+        if (streams.electrics.gear == 0) {
 		      gear = 'N';
-	      } else if (data.electrics.gear < 0) {
+	      } else if (streams.electrics.gear < 0) {
 		      gear = `R${Math.abs(streams.engineInfo[16])}`;
 	      } else {
-		      gear = data.electrics.gear;
+		      gear = streams.electrics.gear;
 	      }
 
         updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${gear}`);
