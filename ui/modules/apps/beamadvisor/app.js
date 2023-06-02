@@ -360,7 +360,7 @@ angular.module('beamng.apps')
       const changeVisibility = (newVisibility) => {
         if (settings.visibility !== newVisibility) settings.visibility = newVisibility;
 
-        if (newVisibility === 'visible') {
+        if (newVisibility === 'normal') { // might want to change to visible
           elements.root.classList.remove('gps-only');
           elements.root.classList.remove('gone');
         }
