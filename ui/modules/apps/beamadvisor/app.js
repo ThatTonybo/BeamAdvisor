@@ -360,7 +360,7 @@ angular.module('beamng.apps')
       const changeVisibility = (newVisibility) => {
         if (settings.visibility !== newVisibility) settings.visibility = newVisibility;
 
-        if (newVisibility === 'normal') {
+        if (newVisibility === 'visible') {
           elements.root.classList.remove('gps-only');
           elements.root.classList.remove('gone');
         }
@@ -787,21 +787,6 @@ angular.module('beamng.apps')
 				} else {
 				  gear = data.electrics.gear;
 				}
-
-// Update gear information whenever drive mode changes
-function updateDriveMode(driveModeName, streams) {
-  // Update drive mode in the UI
-  document.getElementById('driveModeInfo').innerText = driveModeName;
-
-  // Update gear information
-  updateGearInfo(driveModeName, streams);
-}
-
-let driveModeName = driveModesInfo;
-let streams = streamData;
-
-updateDriveMode(driveModeName, streams);
-
 
         updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${gear}`);
 
