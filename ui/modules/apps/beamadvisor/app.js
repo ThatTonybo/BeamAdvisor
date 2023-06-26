@@ -360,7 +360,7 @@ angular.module('beamng.apps')
       const changeVisibility = (newVisibility) => {
         if (settings.visibility !== newVisibility) settings.visibility = newVisibility;
 
-        if (newVisibility === 'normal') {
+        if (newVisibility === 'normal') { // might want to change to visible
           elements.root.classList.remove('gps-only');
           elements.root.classList.remove('gone');
         }
@@ -706,7 +706,7 @@ angular.module('beamng.apps')
         
         // Speed
         // This is in m/s (meters per second), so m/s to mph is n * 2.237
-        const rawSpeedMph = streams.electrics.wheelspeed * 2.237;
+        const rawSpeedMph = streams.electrics.airspeed * 2.237;
         const speedMph = Math.round(rawSpeedMph);
         const speedKph = Math.round(speedMph * 1.609344);
         updateElementText(elements.labels.topBar.speed, settings.speedUnit === 'mph' ? `${speedMph} mph` : `${speedKph} km/h`);
@@ -780,12 +780,14 @@ angular.module('beamng.apps')
 
         // Gear
         let gear;
-        if (streams.engineInfo[16] === 0) gear = 'N'; // Neutral
-        else if (streams.engineInfo[16] <= -1) gear = `R${Math.abs(streams.engineInfo[16])}`; // Reverse
-        else {
-          if (streams.engineInfo[13].toLowerCase() === 'auto') gear = `A${streams.engineInfo[16]}`;
-          else gear = streams.engineInfo[16];
-        }
+        if (streams.electrics.gear == 0) {
+		      gear = 'N';
+	      } else if (streams.electrics.gear < 0) {
+		      gear = 'R';
+	      } else {
+		      gear = streams.electrics.gear;
+	      }
+
         updateElementText(elements.labels.topBar.gear, `<img src="/ui/modules/apps/beamadvisor/images/icons/gear.png" /> ${gear}`);
 
         // Damage
