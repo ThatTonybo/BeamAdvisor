@@ -706,7 +706,7 @@ angular.module('beamng.apps')
         
         // Speed
         // This is in m/s (meters per second), so m/s to mph is n * 2.237
-        const rawSpeedMph = streams.electrics.wheelspeed * 2.237;
+        const rawSpeedMph = streams.electrics.airspeed * 2.237;
         const speedMph = Math.round(rawSpeedMph);
         const speedKph = Math.round(speedMph * 1.609344);
         updateElementText(elements.labels.topBar.speed, settings.speedUnit === 'mph' ? `${speedMph} mph` : `${speedKph} km/h`);
